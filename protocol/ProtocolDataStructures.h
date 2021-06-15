@@ -1,15 +1,19 @@
 #ifndef PROTOCOL_PROTOCOLDATASTRUCTURES_H_
 #define PROTOCOL_PROTOCOLDATASTRUCTURES_H_
 
-#define CMD_ID_3230		(uint16_t)3230
-#define CMD_ID_3231		(uint16_t)3231
-#define CMD_ID_3232		(uint16_t)3232
-#define CMD_ID_3234		(uint16_t)3234
-#define CMD_ID_3332		(uint16_t)3332
-#define CMD_ID_3331		(uint16_t)3331
-#define CMD_ID_3530		(uint16_t)3530
-#define CMD_ID_3532		(uint16_t)3532
-#define CMD_ID_3531		(uint16_t)3531
+
+typedef enum
+{
+	CMD_ID_3230 = (uint16_t)3230,
+	CMD_ID_3231 = (uint16_t)3231,
+	CMD_ID_3232 = (uint16_t)3232,
+	CMD_ID_3234 = (uint16_t)3234,
+	CMD_ID_3332 = (uint16_t)3332,
+	CMD_ID_3331 = (uint16_t)3331,
+	CMD_ID_3530 = (uint16_t)3530,
+	CMD_ID_3532 = (uint16_t)3532,
+	CMD_ID_3531 = (uint16_t)3531
+} t_cmd_id;
 
 
 // ---------------------------------------------------------------------
@@ -39,6 +43,8 @@ typedef struct
 
 typedef struct
 {
+	t_cmd_id cmd_id;
+
 	t_3230_uint16_status_bit_field u16_status_bit_fld;
 
 	int8_t FunSpeed;
@@ -71,10 +77,10 @@ typedef struct
 	unsigned reserved	: 7;
 } t_3231_uint8_service_bit_field;
 
-
-
 typedef struct
 {
+	t_cmd_id cmd_id;
+
 	t_3231_uint16_status_bit_field u16_status_bit_fld;
 
 	int8_t MaximumNumbersOfSpeeds;
@@ -94,21 +100,26 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
 	// null data
 } t_3232_request_parameters_query;
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
 	// null data
 } t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
 	// null data
 } t_3332_request_information_on_device_query; // Request information on device
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
+
 	int8_t ModeOfOperation;		// 1 – main application operating;
 	int16_t DiviceType;			// 0x8012
 	int16_t SubDeviceType;		// 0x0000 (int 16) - "Tion IQ 200", 0x0001 (int 16) - "Tion IQ 400"
@@ -119,6 +130,8 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
+
 	uint16_t PM2_5_value_for_Red_indication;
 	uint16_t PM2_5_value_for_Yellow_indication;
 	uint16_t PM2_5_value_for_Green_indication;
@@ -145,13 +158,14 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
+	t_cmd_id cmd_id;
 	// null data
 } t_3532_query;
 // ---------------------------------------------------------------------
-
-
 typedef struct
 {
+	t_cmd_id cmd_id;
+
 	uint16_t PM2_5_value_for_Red_indication;
 	uint16_t PM2_5_value_for_Yellow_indication;
 	uint16_t PM2_5_value_for_Green_indication;
