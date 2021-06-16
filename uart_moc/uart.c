@@ -1,38 +1,48 @@
+#include <string.h>
 #include "uart.h"
-
-typedef struct
-{
-	uint16_t cmd;
-	uint8_t data_0;
-	uint16_t data_1;
-	uint32_t data_2;
-	uint8_t crc;
-} t_packet;
+#include "../protocol/ProtocolDataStructures.h"
 
 
-#define BUF_SIZE	40u
+#define BUF_SIZE	100u
 
 uint8_t buf_cnt = 0;
 uint8_t buf[BUF_SIZE];
 
-t_packet pack;
+
+t_3531_request_indication_and_auto_settings_response Response3531 = {0};
+
+
 
 void UartInit(void)
 {
-	buf_cnt = 0;
-	pack.cmd = 0x3132;
-	pack.data_0 = 0x01;
-	pack.data_1 = 0x0102;
-	pack.data_2 = 0x01020304;
-	pack.crc = 0xDD;
+	int i = 1;
+	uint16_t tmp;
+
+	Response3531.PM2_5_value_for_Red_indication = 0x1112;
+	Response3531.PM2_5_value_for_Yellow_indication = 0x1314;
+	Response3531.PM2_5_hysteresis_setting = 1;
+	Response3531.PM2_5_measurement_time_setting = 2;
+	Response3531.PM2_5_value_for_Motor_Off = 0x13;
+	Response3531.VOC_level_for_6_speed = 0x1516;
+
 
 	for(int i = 0; i < BUF_SIZE; ++i)
 	{
-		buf[i] = i;
+		buf[i] = 0;
 	}
 
-	buf[2] = 0x23;
-	*((t_packet*)&buf[3]) = pack;
+	buf[i] = HEAD;
+	i += sizeof(HEAD);
+
+	tmp = CMD_ID_3531;
+	memcpy(&buf[i], &tmp, sizeof(tmp));
+	i += sizeof(tmp);
+
+	memcpy(&buf[i], &Response3531, sizeof(t_3531_request_indication_and_auto_settings_response));
+	i += sizeof(t_3531_request_indication_and_auto_settings_response);
+
+	tmp = 0xDD; // crc
+	memcpy(&buf[i], &tmp, sizeof(tmp));
 
 }
 
