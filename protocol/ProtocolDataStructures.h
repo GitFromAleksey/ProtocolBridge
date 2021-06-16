@@ -197,4 +197,7 @@ typedef struct
 	void *p_data;
 } t_data_struct;
 
+int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
+void ProtocolDataStructuresParse(uint8_t *data, uint16_t size);
+void ProtocolDataStructuresInit(void);
 #endif /* PROTOCOL_PROTOCOLDATASTRUCTURES_H_ */
