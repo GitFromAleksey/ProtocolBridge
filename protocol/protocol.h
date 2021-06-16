@@ -25,7 +25,7 @@ typedef struct
 #define T_PAKET_LEN		sizeof(t_packet)
 
 
-#define RX_BUF_SIZE		50u
+#define RX_BUF_SIZE		100u
 #define RX_BUF_CNT_MAX	(RX_BUF_SIZE - 1)
 
 typedef struct

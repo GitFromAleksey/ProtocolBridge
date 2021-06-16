@@ -181,12 +181,14 @@ typedef struct
 
 #define DATA_SIZE_3531	(uint16_t)(sizeof(t_3531_request_indication_and_auto_settings_response))
 // ---------------------------------------------------------------------
+#pragma pack(push, 1)
 typedef struct
 {
 	uint8_t header;
 	uint16_t cmd_id;
 	uint8_t first_data_byte;
 } t_uart_data_struct;
+#pragma pack(pop)
 // ---------------------------------------------------------------------
 typedef struct
 {

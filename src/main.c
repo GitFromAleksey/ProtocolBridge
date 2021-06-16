@@ -29,11 +29,11 @@ int main(void)
 	{
 //		printf("thread_counter = %u\n", thread_counter);
 		ProtocolRun(&Protocol);
-		for(int i = 0; i < 100; ++i)
-		{
-			printf("%X,", (unsigned int)Protocol.packet_buf[i]);
-		}
-		printf("\r");
+//		for(int i = 0; i < 100; ++i)
+//		{
+//			printf("%X,", (unsigned int)Protocol.packet_buf[i]);
+//		}
+//		printf("\r");
 	}
 
 }
