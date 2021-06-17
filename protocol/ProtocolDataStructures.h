@@ -17,42 +17,9 @@ typedef enum
 	CMD_ID_3531 = (uint16_t)0x3531
 } t_cmd_id;
 
+
 // ---------------------------------------------------------------------
-typedef struct
-{
-	unsigned DeviceOnOff:							1;
-	unsigned SoundIndicationOnOff:					1;
-	unsigned OperationOfLightIndication:			2;
-	unsigned ChildLock:								1;
-	unsigned reserve_0:								2;
-	unsigned LastSourceOfCommand:					1;
-	unsigned FactorySettingsReset:					1;
-	unsigned ResetingOfErrorCounter:				1;
-	unsigned ResetingOfFilterReplaceTimeCounter:	1;
-	unsigned ControlViaMaFlag:						1;
-	unsigned AutomaticModeFlag:						1;
-	unsigned SleepTimerOperationFlag:				1;
-	unsigned reserve_1:								1;
-	unsigned reserve_2:								1;
-} t_3230_uint16_status_bit_field;
-
-typedef struct
-{
-	unsigned ParingState	: 2;
-	unsigned reserve		: 6;
-} t_3230_uint8_service_bit_field;
-
-typedef struct
-{
-	t_3230_uint16_status_bit_field u16_status_bit_fld;
-
-	int8_t FunSpeed;
-	int8_t SleepTimerSettings;
-	uint16_t TimeLeftToReplaceFilter;
-	uint16_t TimeLaftToAntibacterialLayerExpire;
-
-	t_3230_uint8_service_bit_field u8_service_bit_field;
-} t_3230_set_parameters_query; // "Set parameters" command.  After the command has been sent a Response command of "Accept parameters" must be received
+// RESPONSES
 // ---------------------------------------------------------------------
 typedef struct
 {
@@ -97,25 +64,40 @@ typedef struct
 
 #define DATA_SIZE_3231	(uint16_t)(sizeof(t_3231_accept_parameters_response))
 // ---------------------------------------------------------------------
+//#pragma pack(push, 1)
 typedef struct
 {
-	// null data
-} t_3232_request_parameters_query;
-// ---------------------------------------------------------------------
-typedef struct
-{
-	// null data
-} t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
-// ---------------------------------------------------------------------
-typedef struct // 23 32 33 DD
-{
-	// null data
-} t_3332_request_information_on_device_query; // Request information on device
+	uint16_t PM2_5_value_for_Red_indication;
+	uint16_t PM2_5_value_for_Yellow_indication;
+	uint16_t PM2_5_value_for_Green_indication;
+	uint16_t PM2_5_value_for_Motor_Off;
+	uint16_t PM2_5_value_for_1_speed;
+	uint16_t PM2_5_value_for_2_speed;
+	uint16_t PM2_5_value_for_3_speed;
+	uint16_t PM2_5_value_for_4_speed;
+	uint16_t PM2_5_value_for_5_speed;
+	uint16_t PM2_5_value_for_6_speed;
+	uint16_t PM2_5_hysteresis_setting;
+	uint16_t PM2_5_measurement_time_setting;
+	uint16_t VOC_level_for_Red_indication;
+	uint16_t VOC_level_for_Yellow_indication;
+	uint16_t VOC_level_for_Green_indication;
+	uint16_t VOC_level_for_Motor_Off;
+	uint16_t VOC_level_for_1_speed;
+	uint16_t VOC_level_for_2_speed;
+	uint16_t VOC_level_for_3_speed;
+	uint16_t VOC_level_for_4_speed;
+	uint16_t VOC_level_for_5_speed;
+	uint16_t VOC_level_for_6_speed;
+} t_3531_request_indication_and_auto_settings_response; // Request indication and Auto settings
+//#pragma pack(pop)
+
+#define DATA_SIZE_3531	(uint16_t)(sizeof(t_3531_request_indication_and_auto_settings_response))
 // ---------------------------------------------------------------------
 typedef struct
 {
 	int8_t ModeOfOperation;		// 1 Ц main application operating;
-	int16_t DiviceType;			// 0x8012
+	int16_t DeviceType;			// 0x8012
 	int16_t SubDeviceType;		// 0x0000 (int 16) - "Tion IQ 200", 0x0001 (int 16) - "Tion IQ 400"
 	int16_t SoftwareVertion;	// 0x0000 .. 0xFFFF
 	int16_t BoardVersion;		// 0x0000 .. 0xFFFF
@@ -151,50 +133,78 @@ typedef struct
 } t_3530_set_indication_and_auto_settings_response; // Set indication and Auto settings
 
 #define DATA_SIZE_3530	(uint16_t)(sizeof(t_3530_set_indication_and_auto_settings_response))
+
 // ---------------------------------------------------------------------
+// QUERYES
+// ---------------------------------------------------------------------
+typedef struct
+{
+	unsigned DeviceOnOff:							1;
+	unsigned SoundIndicationOnOff:					1;
+	unsigned OperationOfLightIndication:			2;
+	unsigned ChildLock:								1;
+	unsigned reserve_0:								2;
+	unsigned LastSourceOfCommand:					1;
+	unsigned FactorySettingsReset:					1;
+	unsigned ResetingOfErrorCounter:				1;
+	unsigned ResetingOfFilterReplaceTimeCounter:	1;
+	unsigned ControlViaMaFlag:						1;
+	unsigned AutomaticModeFlag:						1;
+	unsigned SleepTimerOperationFlag:				1;
+	unsigned reserve_1:								1;
+	unsigned reserve_2:								1;
+} t_3230_uint16_status_bit_field;
+
+typedef struct
+{
+	unsigned ParingState	: 2;
+	unsigned reserve		: 6;
+} t_3230_uint8_service_bit_field;
+
+typedef struct
+{
+	t_3230_uint16_status_bit_field u16_status_bit_fld;
+
+	int8_t FunSpeed;
+	int8_t SleepTimerSettings;
+	uint16_t TimeLeftToReplaceFilter;
+	uint16_t TimeLaftToAntibacterialLayerExpire;
+
+	t_3230_uint8_service_bit_field u8_service_bit_field;
+} t_3230_set_parameters_query; // "Set parameters" command.  After the command has been sent a Response command of "Accept parameters" must be received
+// ---------------------------------------------------------------------
+typedef struct
+{
+	// null data
+} t_3232_request_parameters_query;
+// ---------------------------------------------------------------------
+typedef struct
+{
+	// null data
+} t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
+// ---------------------------------------------------------------------
+typedef struct // 23 32 33 DD
+{
+	// null data
+} t_3332_request_information_on_device_query; // Request information on device
+// ---------------------------------------------------------------------
+
 typedef struct
 {
 	// null data
 } t_3532_query;
 // ---------------------------------------------------------------------
-typedef struct
-{
-	uint16_t PM2_5_value_for_Red_indication;
-	uint16_t PM2_5_value_for_Yellow_indication;
-	uint16_t PM2_5_value_for_Green_indication;
-	uint16_t PM2_5_value_for_Motor_Off;
-	uint16_t PM2_5_value_for_1_speed;
-	uint16_t PM2_5_value_for_2_speed;
-	uint16_t PM2_5_value_for_3_speed;
-	uint16_t PM2_5_value_for_4_speed;
-	uint16_t PM2_5_value_for_5_speed;
-	uint16_t PM2_5_value_for_6_speed;
-	uint16_t PM2_5_hysteresis_setting;
-	uint16_t PM2_5_measurement_time_setting;
-	uint16_t VOC_level_for_Red_indication;
-	uint16_t VOC_level_for_Yellow_indication;
-	uint16_t VOC_level_for_Green_indication;
-	uint16_t VOC_level_for_Motor_Off;
-	uint16_t VOC_level_for_1_speed;
-	uint16_t VOC_level_for_2_speed;
-	uint16_t VOC_level_for_3_speed;
-	uint16_t VOC_level_for_4_speed;
-	uint16_t VOC_level_for_5_speed;
-	uint16_t VOC_level_for_6_speed;
-} t_3531_request_indication_and_auto_settings_response; // Request indication and Auto settings
 
-#define DATA_SIZE_3531	(uint16_t)(sizeof(t_3531_request_indication_and_auto_settings_response))
-// ---------------------------------------------------------------------
 typedef struct // TODO эта структура планируетс€ дл€ создани€ списка экземпл€ров структур данных
 // это нужно дл€ реализации автоматического копировани€ данных в экземпл€ры
 {
 	t_cmd_id cmd_id; //
-	uint16_t size;	// размер структуры данных
+	uint16_t data_size;	// размер структуры данных
 	void *p_data;	// указатель на структуру данных
-	void *p_next;	// указатель на следующий объект
-} t_data_struct;
+	void *p_next_item;	// указатель на следующий объект
+} t_data_list_struct;
 
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
-void ProtocolDataStructuresParse(uint8_t *data, uint16_t size);
+void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id);
 void ProtocolDataStructuresInit(void);
 #endif /* PROTOCOL_PROTOCOLDATASTRUCTURES_H_ */

@@ -17,6 +17,8 @@ void ProtocolInit(t_protocol *prot)
 {
 	prot->find_start_of_packet = false;
 	prot->rx_buf_cnt = RX_BUF_CNT_MAX;
+
+	ProtocolDataStructuresInit();
 }
 // ----------------------------------------------------------------------------
 uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size) // TODO реализавать
@@ -56,10 +58,12 @@ bool ProtocolStructureFind(t_protocol *prot)
 			if(data_size == prot->rx_buf_cnt) // длина принятых данных совпадает с вычисленной длиной
 			{
 				crc = ((uint8_t*)p_uart_packet)[data_size];
-//printf("\ndata_size == prot->rx_buf_cnt");
+
 				// рассчёт crc
 				if(crc == ProtocolCrcXorCalk(&p_uart_packet->header, data_size))
 				{
+					// так как crc в порядке, то отправляем для разбора структуры принятых данных
+					ProtocolDataStructuresParse(&p_uart_packet->first_data_byte, p_uart_packet->cmd_id);
 					res = true;
 					printf("\ncrc = ok\n");
 				}
@@ -87,7 +91,6 @@ void ProtocolFindPacket(t_protocol *prot)
 			prot->packet_buf[prot->rx_buf_cnt] = tmp;
 			prot->find_start_of_packet = true;
 			++prot->rx_buf_cnt;
-printf("\n%X:", tmp);
 		}
 	}
 
@@ -96,7 +99,7 @@ printf("\n%X:", tmp);
 		while(prot->uart_get_byte(&tmp)) // забираем данные пока есть
 		{
 			prot->packet_buf[prot->rx_buf_cnt++] = tmp;
-printf("%X:", tmp);
+
 			if(ProtocolStructureFind(prot) || prot->rx_buf_cnt >= RX_BUF_CNT_MAX) // превышен размер буфера, значит не было пакета
 			{
 				prot->rx_buf_cnt = 0;

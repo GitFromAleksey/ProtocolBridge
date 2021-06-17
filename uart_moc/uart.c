@@ -48,15 +48,13 @@ printf("cmd_id = 0x%X, data_size = %u\n", cmd_id, data_size);
 	memcpy(&rx_buf[buf_cnt], &tmp, sizeof(tmp));
 	buf_cnt += sizeof(tmp); // 2
 
-	memcpy(&rx_buf[buf_cnt], &data, data_size);
+	memcpy(&rx_buf[buf_cnt], data, data_size);
 	buf_cnt += data_size; // 44
 
 	crc = CrcXorCalk(rx_buf, buf_cnt);
-printf("crc = %X; crc position = %u\n", crc, buf_cnt);
 	memcpy(&rx_buf[buf_cnt], &crc, sizeof(crc));
 
 	for(int i = 0; i <= buf_cnt; ++i)
-//		printf("%X(%u):", rx_buf[i], i);
 		printf("%X:", rx_buf[i]);
 }
 // ----------------------------------------------------------------------------
@@ -92,16 +90,35 @@ void Receive_CMD_ID_3531(void)
 void Receive_CMD_ID_3530(void)
 {
 	t_3530_set_indication_and_auto_settings_response Response3530 = {0};
+
+	Response3530.PM2_5_value_for_Red_indication = 0x1234;
+	Response3530.VOC_level_for_6_speed = 0x5678;
+
 	CopyDataToRxBuffer(buf, BUF_SIZE, CMD_ID_3530, (uint8_t *)&Response3530, DATA_SIZE_3530);
 }
 void Receive_CMD_ID_3331(void)
 {
 	t_3331_receive_information_on_device_response Response3331 = {0};
+
+	Response3331.ModeOfOperation = 0x12;
+	Response3331.DeviceType = 0x3456;
+	Response3331.BoardVersion = 0x7890;
+
 	CopyDataToRxBuffer(buf, BUF_SIZE, CMD_ID_3331, (uint8_t *)&Response3331, DATA_SIZE_3331);
 }
 void Receive_CMD_ID_3231(void)
 {
 	t_3231_accept_parameters_response Response3231 = {0};
+
+	Response3231.u16_status_bit_fld.DeviceOnOff = 1;
+	Response3231.u16_status_bit_fld.reserve = 7;
+
+	Response3231.MaximumNumbersOfSpeeds = 0x12;
+	Response3231.SleepTimerCurrentValue = 0x34;
+	Response3231.ErrorBitField = 0x56789012;
+
+	Response3231.u8_service_bit_fld.Pairing = 1;
+
 	CopyDataToRxBuffer(buf, BUF_SIZE, CMD_ID_3231, (uint8_t *)&Response3231, DATA_SIZE_3231);
 }
 // ----------------------------------------------------------------------------
