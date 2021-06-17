@@ -191,6 +191,8 @@ typedef struct
 {
 	// null data
 } t_3232_request_parameters_query;
+
+#define DATA_SIZE_3232	(uint16_t)(sizeof(t_3232_request_parameters_query))
 // ---------------------------------------------------------------------
 typedef struct
 {

@@ -12,6 +12,9 @@ typedef struct
 } t_uart_data_struct;
 #pragma pack(pop)
 
+#define TX_BUF_SIZE	100u
+static uint8_t tx_buf[TX_BUF_SIZE] = {0};
+
 // ----------------------------------------------------------------------------
 void ProtocolInit(t_protocol *prot)
 {
@@ -107,13 +110,12 @@ void ProtocolFindPacket(t_protocol *prot)
 // ----------------------------------------------------------------------------
 void ProtocolPeriodicalRequestSend(t_protocol *prot) // TODO это тестовое формирование данных на отправку
 {
-	static uint8_t tx_buf[100] = {0};
 	t_uart_data_struct *uart_data;
 
 	uart_data = tx_buf;
 	uart_data->header = HEAD;
 
-	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( &uart_data->cmd_id, 100);
+	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( &uart_data->cmd_id, TX_BUF_SIZE-sizeof(uart_data->header));
 
 	printf("\ntx_data_size = %u", tx_data_size);
 

@@ -154,5 +154,13 @@ void UartSentData(uint8_t *data, uint8_t size)
 	printf("\nUartSentData:\n");
 	for(int i = 0; i < size; ++i)
 		printf("%X:",data[i]);
+
+//	printf("\ncrc = %X", data[size-1]);
+//	printf("\nCrcXorCalk = %X", CrcXorCalk(data, size-1));
+
+	if(data[size-1] == CrcXorCalk(data, size-1))
+	{
+		printf("\nUartSentData: crc - ok");
+	}
 }
 // ----------------------------------------------------------------------------

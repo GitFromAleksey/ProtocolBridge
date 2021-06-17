@@ -107,12 +107,11 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 //	}
 }
 // ----------------------------------------------------------------------------
-// записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
-uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size) // TODO это тестовое формирование данных на отправку
+uint16_t Get_3230_Request(uint16_t *cmd_id, uint8_t *data, uint16_t size) // TODO тестовая функция
 {
-	uint16_t data_cnt;
-	uint16_t cmd_id = CMD_ID_3230;
 	t_3230_set_parameters_query query = {0};
+
+	*cmd_id = CMD_ID_3230;
 
 //	query.u16_status_bit_fld = (t_3230_uint16_status_bit_field)0x1234;
 	query.u16_status_word = 0x1234;
@@ -124,14 +123,40 @@ uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size) // T
 	query.u8_service_bit_field.ParingState = 3;
 	query.u8_service_bit_field.reserve = 0x3F;
 
+	memcpy(data, &query, DATA_SIZE_3230);
+
+	return DATA_SIZE_3230;
+}
+uint16_t Get_3232_Request(uint16_t *cmd_id, uint8_t *data, uint16_t size) // TODO тестовая функция
+{
+	t_3232_request_parameters_query query = {0};
+printf("\nDATA_SIZE_3232 = %X", DATA_SIZE_3232);
+	memcpy(data, &query, DATA_SIZE_3230);
+	*cmd_id = CMD_ID_3232;
+
+	return DATA_SIZE_3232;
+}
+
+// записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
+uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size) // TODO это тестовое формирование данных на отправку
+{
+	uint16_t data_cnt;
+	uint16_t cmd_id;
+//	t_3230_set_parameters_query query = {0};
+	uint8_t query[100] = {0};
+	uint16_t query_size;
+
+	query_size = Get_3230_Request(&cmd_id, query, 100);
+//	query_size = Get_3232_Request(&cmd_id, query, 100);
+
 	data_cnt = 0;
 
 	memcpy(&data[data_cnt], &cmd_id, sizeof(uint16_t));
 	data_cnt += sizeof(uint16_t);
 
-	memcpy(&data[data_cnt], (uint8_t*)&query, DATA_SIZE_3230);
-	data_cnt += DATA_SIZE_3230;
-
+	memcpy(&data[data_cnt], (uint8_t*)&query, query_size);
+	data_cnt += query_size;
+	printf("\ndata_cnt = %u", data_cnt);
 	return data_cnt;
 }
 // ----------------------------------------------------------------------------
