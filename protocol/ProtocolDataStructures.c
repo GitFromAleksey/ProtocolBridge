@@ -16,7 +16,7 @@ int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)
 //			printf("Find CMD_ID_3230 = 0x%X\n", CMD_ID_3230);
 			break;
 		case CMD_ID_3231:
-//			printf("Find CMD_ID_3231 = 0x%X\n", CMD_ID_3231);
+			result = DATA_SIZE_3231;
 			break;
 		case CMD_ID_3232:
 //			printf("Find CMD_ID_3232 = 0x%X\n", CMD_ID_3232);
@@ -28,16 +28,15 @@ int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)
 //			printf("Find CMD_ID_3332 = 0x%X\n", CMD_ID_3332);
 			break;
 		case CMD_ID_3331:
-//			printf("Find CMD_ID_3331 = 0x%X\n", CMD_ID_3331);
+			result = DATA_SIZE_3331;
 			break;
 		case CMD_ID_3530:
-//			printf("Find CMD_ID_3530 = 0x%X\n", CMD_ID_3530);
+			result = DATA_SIZE_3530;
 			break;
 		case CMD_ID_3532:
 //			printf("Find CMD_ID_3532 = 0x%X\n", CMD_ID_3532);
 			break;
 		case CMD_ID_3531:
-//			printf("Find CMD_ID_3531 = 0x%X\n", CMD_ID_3531);
 			result = DATA_SIZE_3531;
 			break;
 		default:

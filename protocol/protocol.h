@@ -5,25 +5,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#define PACKET_START	(uint8_t)0x23
-
-#define CRC8_TEST		(uint8_t)0xDD
-#define CRC8_LEN		sizeof(CRC8_TEST)
-
-#define CMD_0			(uint16_t)0x3132
-
-//#pragma pack(push, 1)
-typedef struct
-{
-	uint16_t cmd;
-	uint8_t data_0;
-	uint16_t data_1;
-	uint32_t data_2;
-	uint8_t crc;
-} t_packet;
-//#pragma pack(pop)
-#define T_PAKET_LEN		sizeof(t_packet)
-
 
 #define RX_BUF_SIZE		100u
 #define RX_BUF_CNT_MAX	(RX_BUF_SIZE - 1)

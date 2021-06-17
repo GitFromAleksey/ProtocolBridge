@@ -1,7 +1,16 @@
 #include "protocol.h"
 #include "ProtocolDataStructures.h"
 
+#define HEAD	(uint8_t)0x23
 
+#pragma pack(push, 1)
+typedef struct
+{
+	uint8_t header;
+	uint16_t cmd_id;
+	uint8_t first_data_byte;
+} t_uart_data_struct;
+#pragma pack(pop)
 
 // ----------------------------------------------------------------------------
 void ProtocolInit(t_protocol *prot)
@@ -47,13 +56,17 @@ bool ProtocolStructureFind(t_protocol *prot)
 			if(data_size == prot->rx_buf_cnt) // длина принятых данных совпадает с вычисленной длиной
 			{
 				crc = ((uint8_t*)p_uart_packet)[data_size];
-
+//printf("\ndata_size == prot->rx_buf_cnt");
 				// рассчёт crc
 				if(crc == ProtocolCrcXorCalk(&p_uart_packet->header, data_size))
 				{
 					res = true;
-					printf("crc = ok\n");
+					printf("\ncrc = ok\n");
 				}
+//				else
+//				{
+//					printf("crc = not ok\n");
+//				}
 			}
 		}
 	}
@@ -74,6 +87,7 @@ void ProtocolFindPacket(t_protocol *prot)
 			prot->packet_buf[prot->rx_buf_cnt] = tmp;
 			prot->find_start_of_packet = true;
 			++prot->rx_buf_cnt;
+printf("\n%X:", tmp);
 		}
 	}
 
@@ -82,7 +96,7 @@ void ProtocolFindPacket(t_protocol *prot)
 		while(prot->uart_get_byte(&tmp)) // забираем данные пока есть
 		{
 			prot->packet_buf[prot->rx_buf_cnt++] = tmp;
-
+printf("%X:", tmp);
 			if(ProtocolStructureFind(prot) || prot->rx_buf_cnt >= RX_BUF_CNT_MAX) // превышен размер буфера, значит не было пакета
 			{
 				prot->rx_buf_cnt = 0;

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define HEAD	(uint8_t)0x23
-
 
 typedef enum
 {
@@ -96,6 +94,8 @@ typedef struct
 
 	t_3231_uint8_service_bit_field u8_service_bit_fld;
 } t_3231_accept_parameters_response;
+
+#define DATA_SIZE_3231	(uint16_t)(sizeof(t_3231_accept_parameters_response))
 // ---------------------------------------------------------------------
 typedef struct
 {
@@ -121,6 +121,8 @@ typedef struct
 	int16_t BoardVersion;		// 0x0000 .. 0xFFFF
 	int8_t ReserveArray[16];	//
 } t_3331_receive_information_on_device_response; // Receive information on device
+
+#define DATA_SIZE_3331	(uint16_t)(sizeof(t_3331_receive_information_on_device_response))
 // ---------------------------------------------------------------------
 typedef struct
 {
@@ -147,6 +149,8 @@ typedef struct
 	uint16_t VOC_level_for_5_speed;
 	uint16_t VOC_level_for_6_speed;
 } t_3530_set_indication_and_auto_settings_response; // Set indication and Auto settings
+
+#define DATA_SIZE_3530	(uint16_t)(sizeof(t_3530_set_indication_and_auto_settings_response))
 // ---------------------------------------------------------------------
 typedef struct
 {
@@ -181,20 +185,13 @@ typedef struct
 
 #define DATA_SIZE_3531	(uint16_t)(sizeof(t_3531_request_indication_and_auto_settings_response))
 // ---------------------------------------------------------------------
-#pragma pack(push, 1)
-typedef struct
-{
-	uint8_t header;
-	uint16_t cmd_id;
-	uint8_t first_data_byte;
-} t_uart_data_struct;
-#pragma pack(pop)
-// ---------------------------------------------------------------------
-typedef struct
+typedef struct // TODO эта структура планируетс€ дл€ создани€ списка экземпл€ров структур данных
+// это нужно дл€ реализации автоматического копировани€ данных в экземпл€ры
 {
 	t_cmd_id cmd_id; //
-	uint16_t size;
-	void *p_data;
+	uint16_t size;	// размер структуры данных
+	void *p_data;	// указатель на структуру данных
+	void *p_next;	// указатель на следующий объект
 } t_data_struct;
 
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
