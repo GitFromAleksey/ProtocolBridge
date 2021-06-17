@@ -1,6 +1,8 @@
 #include <stddef.h>
 #include "ProtocolDataStructures.h"
 
+// ----------------------------------------------------------------------------
+
 // экземпл€ры структыр данных ответов
 static t_3231_accept_parameters_response					ResponseData_3231;
 static t_3331_receive_information_on_device_response		ResponseData_3331;
@@ -14,6 +16,22 @@ static t_data_list_struct	ResponseListItem_3530;
 static t_data_list_struct	ResponseListItem_3531;
 
 static t_data_list_struct * ResponsesList; // список структур ответов
+// ----------------------------------------------------------------------------
+
+// экземпл€ры структыр данных запросов
+static t_3230_set_parameters_query					Query_3230;
+static t_3232_request_parameters_query				Query_3232;
+static t_3234_set_parameters_nonvolatile_mem_query	Query_3234;
+static t_3332_request_information_on_device_query	Query_3332;
+static t_3532_query									Query_3532;
+// элементы списка запросов
+static t_data_list_struct	QueryListItem_3230;
+static t_data_list_struct	QueryListItem_3232;
+static t_data_list_struct	QueryListItem_3234;
+static t_data_list_struct	QueryListItem_3332;
+static t_data_list_struct	QueryListItem_3532;
+
+static t_data_list_struct * QueryesList; // список структур запросов
 
 // ----------------------------------------------------------------------------
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)
@@ -107,63 +125,32 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 //	}
 }
 // ----------------------------------------------------------------------------
-uint16_t Get_3230_Request(uint16_t *cmd_id, uint8_t *data, uint16_t size) // TODO тестова€ функци€
-{
-	t_3230_set_parameters_query query = {0};
-
-	*cmd_id = CMD_ID_3230;
-
-//	query.u16_status_bit_fld = (t_3230_uint16_status_bit_field)0x1234;
-	query.u16_status_word = 0x1234;
-	query.FunSpeed = 0x56;
-	query.SleepTimerSettings = 0x78;
-	query.TimeLeftToReplaceFilter = 0x9012;
-	query.TimeLaftToAntibacterialLayerExpire = 0x3456;
-
-	query.u8_service_bit_field.ParingState = 3;
-	query.u8_service_bit_field.reserve = 0x3F;
-
-	memcpy(data, &query, DATA_SIZE_3230);
-
-	return DATA_SIZE_3230;
-}
-uint16_t Get_3232_Request(uint16_t *cmd_id, uint8_t *data, uint16_t size) // TODO тестова€ функци€
-{
-	t_3232_request_parameters_query query = {0};
-printf("\nDATA_SIZE_3232 = %X", DATA_SIZE_3232);
-	memcpy(data, &query, DATA_SIZE_3230);
-	*cmd_id = CMD_ID_3232;
-
-	return DATA_SIZE_3232;
-}
-
 // записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
-uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size) // TODO это тестовое формирование данных на отправку
+uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size)
 {
 	uint16_t data_cnt;
 	uint16_t cmd_id;
-//	t_3230_set_parameters_query query = {0};
-	uint8_t query[100] = {0};
 	uint16_t query_size;
 
-	query_size = Get_3230_Request(&cmd_id, query, 100);
-//	query_size = Get_3232_Request(&cmd_id, query, 100);
+	cmd_id = QueryesList->cmd_id;
+	query_size = QueryesList->data_size;
 
 	data_cnt = 0;
 
 	memcpy(&data[data_cnt], &cmd_id, sizeof(uint16_t));
 	data_cnt += sizeof(uint16_t);
 
-	memcpy(&data[data_cnt], (uint8_t*)&query, query_size);
+	memcpy(&data[data_cnt], QueryesList->p_data, query_size);
 	data_cnt += query_size;
-	printf("\ndata_cnt = %u", data_cnt);
+
+	QueryesList = (t_data_list_struct*)QueryesList->p_next_item;
+
 	return data_cnt;
 }
 // ----------------------------------------------------------------------------
 void ProtocolDataStructuresInit(void)
 {
-	ResponsesList = &ResponseListItem_3231;
-
+	// ------------------------------------------------------------
 	ResponseListItem_3231.cmd_id		= CMD_ID_3231;
 	ResponseListItem_3231.p_data		= (void*)&ResponseData_3231;
 	ResponseListItem_3231.data_size		= DATA_SIZE_3231;
@@ -183,5 +170,36 @@ void ProtocolDataStructuresInit(void)
 	ResponseListItem_3531.p_data		= (void*)&ResponseData_3531;
 	ResponseListItem_3531.data_size		= DATA_SIZE_3531;
 	ResponseListItem_3531.p_next_item	= NULL;
+
+	ResponsesList = &ResponseListItem_3231;
+
+	// ------------------------------------------------------------
+
+	QueryListItem_3230.cmd_id		= CMD_ID_3230;
+	QueryListItem_3230.p_data		= (void*)&Query_3230;
+	QueryListItem_3230.data_size	= DATA_SIZE_3230;
+	QueryListItem_3230.p_next_item	= (void*)&QueryListItem_3232;
+
+	QueryListItem_3232.cmd_id		= CMD_ID_3232;
+	QueryListItem_3232.p_data		= (void*)&Query_3232;
+	QueryListItem_3232.data_size	= DATA_SIZE_3232;
+	QueryListItem_3232.p_next_item	= (void*)&QueryListItem_3234;
+
+	QueryListItem_3234.cmd_id		= CMD_ID_3234;
+	QueryListItem_3234.p_data		= (void*)&Query_3234;
+	QueryListItem_3234.data_size	= DATA_SIZE_3234;
+	QueryListItem_3234.p_next_item	= (void*)&QueryListItem_3332;
+
+	QueryListItem_3332.cmd_id		= CMD_ID_3332;
+	QueryListItem_3332.p_data		= (void*)&Query_3332;
+	QueryListItem_3332.data_size	= DATA_SIZE_3332;
+	QueryListItem_3332.p_next_item	= (void*)&QueryListItem_3532;
+
+	QueryListItem_3532.cmd_id		= CMD_ID_3532;
+	QueryListItem_3532.p_data		= (void*)&Query_3532;
+	QueryListItem_3532.data_size	= DATA_SIZE_3532;
+	QueryListItem_3532.p_next_item	= (void*)&QueryListItem_3230; // здесь ссылаемс€ на первый элемент, так как это циклический список
+
+	QueryesList = &QueryListItem_3230;
 }
 // ----------------------------------------------------------------------------

@@ -198,17 +198,22 @@ typedef struct
 {
 	// null data
 } t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
+
+#define DATA_SIZE_3234	(uint16_t)(sizeof(t_3234_set_parameters_nonvolatile_mem_query))
 // ---------------------------------------------------------------------
 typedef struct // 23 32 33 DD
 {
 	// null data
 } t_3332_request_information_on_device_query; // Request information on device
-// ---------------------------------------------------------------------
 
+#define DATA_SIZE_3332	(uint16_t)(sizeof(t_3332_request_information_on_device_query))
+// ---------------------------------------------------------------------
 typedef struct
 {
 	// null data
 } t_3532_query;
+
+#define DATA_SIZE_3532	(uint16_t)(sizeof(t_3532_query))
 // ---------------------------------------------------------------------
 
 typedef struct // эта структура для создания списка экземпляров структур данных
