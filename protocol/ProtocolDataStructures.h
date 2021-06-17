@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 
-typedef enum
+typedef enum // TODO cmd_id дл€ удобства нужно разделить на два энума дл€ query и request
 {
 	CMD_ID_3230 = (uint16_t)0x3230,
 	CMD_ID_3231 = (uint16_t)0x3231,
@@ -21,26 +21,26 @@ typedef enum
 // ---------------------------------------------------------------------
 // RESPONSES
 // ---------------------------------------------------------------------
-typedef struct
+typedef struct // TODO была замена типа unsigned на uint16_t. Ќужно проверить как будут паковатьс€ данные
 {
-	unsigned DeviceOnOff				: 1;
-	unsigned SoundIndicationOnOff		: 1;
-	unsigned LightIndicationStatus		: 2;
-	unsigned ChildLock					: 1;
-	unsigned reserve_0					: 2;
-	unsigned SourseOfLastCommand		: 1;
-	unsigned FilterOveraged				: 1;
-	unsigned ControlViaMaFlag			: 1;
-	unsigned AutomaticModeFlag			: 1;
-	unsigned ActiveTimerFlag			: 1;
-	unsigned AntibacterialLayerExpire	: 1;
-	unsigned reserve					: 3;
+	uint16_t DeviceOnOff				: 1;
+	uint16_t SoundIndicationOnOff		: 1;
+	uint16_t LightIndicationStatus		: 2;
+	uint16_t ChildLock					: 1;
+	uint16_t reserve_0					: 2;
+	uint16_t SourseOfLastCommand		: 1;
+	uint16_t FilterOveraged				: 1;
+	uint16_t ControlViaMaFlag			: 1;
+	uint16_t AutomaticModeFlag			: 1;
+	uint16_t ActiveTimerFlag			: 1;
+	uint16_t AntibacterialLayerExpire	: 1;
+	uint16_t reserve					: 3;
 } t_3231_uint16_status_bit_field;
 
-typedef struct
+typedef struct // TODO была замена типа unsigned на uint8_t. Ќужно проверить как будут паковатьс€ данные
 {
-	unsigned Pairing	: 1;
-	unsigned reserved	: 7;
+	uint8_t Pairing		: 1;
+	uint8_t reserved	: 7;
 } t_3231_uint8_service_bit_field;
 
 typedef struct
@@ -137,41 +137,55 @@ typedef struct
 // ---------------------------------------------------------------------
 // QUERYES
 // ---------------------------------------------------------------------
+#pragma pack(push, 1)
 typedef struct
 {
-	unsigned DeviceOnOff:							1;
-	unsigned SoundIndicationOnOff:					1;
-	unsigned OperationOfLightIndication:			2;
-	unsigned ChildLock:								1;
-	unsigned reserve_0:								2;
-	unsigned LastSourceOfCommand:					1;
-	unsigned FactorySettingsReset:					1;
-	unsigned ResetingOfErrorCounter:				1;
-	unsigned ResetingOfFilterReplaceTimeCounter:	1;
-	unsigned ControlViaMaFlag:						1;
-	unsigned AutomaticModeFlag:						1;
-	unsigned SleepTimerOperationFlag:				1;
-	unsigned reserve_1:								1;
-	unsigned reserve_2:								1;
+	uint16_t DeviceOnOff:							1;
+	uint16_t SoundIndicationOnOff:					1;
+	uint16_t OperationOfLightIndication:			2;
+	uint16_t ChildLock:								1;
+	uint16_t reserve_0:								2;
+	uint16_t LastSourceOfCommand:					1;
+	uint16_t FactorySettingsReset:					1;
+	uint16_t ResetingOfErrorCounter:				1;
+	uint16_t ResetingOfFilterReplaceTimeCounter:	1;
+	uint16_t ControlViaMaFlag:						1;
+	uint16_t AutomaticModeFlag:						1;
+	uint16_t SleepTimerOperationFlag:				1;
+	uint16_t reserve_1:								1;
+	uint16_t reserve_2:								1;
 } t_3230_uint16_status_bit_field;
+#pragma pack(pop)
 
 typedef struct
 {
-	unsigned ParingState	: 2;
-	unsigned reserve		: 6;
+	uint8_t ParingState	: 2;
+	uint8_t reserve		: 6;
 } t_3230_uint8_service_bit_field;
 
+#pragma pack(push, 1)
 typedef struct
 {
-	t_3230_uint16_status_bit_field u16_status_bit_fld;
+	union
+	{
+		uint16_t u16_status_word;
+		t_3230_uint16_status_bit_field u16_status_bit_fld;
+	};
 
 	int8_t FunSpeed;
 	int8_t SleepTimerSettings;
 	uint16_t TimeLeftToReplaceFilter;
 	uint16_t TimeLaftToAntibacterialLayerExpire;
 
-	t_3230_uint8_service_bit_field u8_service_bit_field;
+	union
+	{
+		uint8_t u8_service_byte;
+		t_3230_uint8_service_bit_field u8_service_bit_field;
+	};
 } t_3230_set_parameters_query; // "Set parameters" command.  After the command has been sent a Response command of "Accept parameters" must be received
+#pragma pack(pop)
+
+#define DATA_SIZE_3230	(uint16_t)(sizeof(t_3230_set_parameters_query))
 // ---------------------------------------------------------------------
 typedef struct
 {
@@ -195,7 +209,7 @@ typedef struct
 } t_3532_query;
 // ---------------------------------------------------------------------
 
-typedef struct // TODO эта структура планируетс€ дл€ создани€ списка экземпл€ров структур данных
+typedef struct // эта структура дл€ создани€ списка экземпл€ров структур данных
 // это нужно дл€ реализации автоматического копировани€ данных в экземпл€ры
 {
 	t_cmd_id cmd_id; //
@@ -206,5 +220,6 @@ typedef struct // TODO эта структура планируетс€ дл€ создани€ списка экземпл€ров
 
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
 void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id);
+uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size);
 void ProtocolDataStructuresInit(void);
 #endif /* PROTOCOL_PROTOCOLDATASTRUCTURES_H_ */

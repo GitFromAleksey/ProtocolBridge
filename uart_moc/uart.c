@@ -151,6 +151,8 @@ bool UartGetByte(uint8_t *data)
 // ----------------------------------------------------------------------------
 void UartSentData(uint8_t *data, uint8_t size)
 {
-
+	printf("\nUartSentData:\n");
+	for(int i = 0; i < size; ++i)
+		printf("%X:",data[i]);
 }
 // ----------------------------------------------------------------------------

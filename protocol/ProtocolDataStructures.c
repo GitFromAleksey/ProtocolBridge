@@ -68,9 +68,6 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 	t_data_list_struct *first_list_item = ResponsesList;
 	if(first_list_item == NULL) return;
 
-printf("\nProtocolDataStructuresParse");
-
-printf("\ncmd_id = %X", cmd_id);
 	while(first_list_item != NULL) // пока не дошли до конца списка
 	{
 		if(cmd_id == first_list_item->cmd_id) //
@@ -108,6 +105,34 @@ printf("\ncmd_id = %X", cmd_id);
 //		printf("\nPairing = %X", ResponseData_3231.u8_service_bit_fld.Pairing);
 //		break;
 //	}
+}
+// ----------------------------------------------------------------------------
+// записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
+uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size) // TODO это тестовое формирование данных на отправку
+{
+	uint16_t data_cnt;
+	uint16_t cmd_id = CMD_ID_3230;
+	t_3230_set_parameters_query query = {0};
+
+//	query.u16_status_bit_fld = (t_3230_uint16_status_bit_field)0x1234;
+	query.u16_status_word = 0x1234;
+	query.FunSpeed = 0x56;
+	query.SleepTimerSettings = 0x78;
+	query.TimeLeftToReplaceFilter = 0x9012;
+	query.TimeLaftToAntibacterialLayerExpire = 0x3456;
+
+	query.u8_service_bit_field.ParingState = 3;
+	query.u8_service_bit_field.reserve = 0x3F;
+
+	data_cnt = 0;
+
+	memcpy(&data[data_cnt], &cmd_id, sizeof(uint16_t));
+	data_cnt += sizeof(uint16_t);
+
+	memcpy(&data[data_cnt], (uint8_t*)&query, DATA_SIZE_3230);
+	data_cnt += DATA_SIZE_3230;
+
+	return data_cnt;
 }
 // ----------------------------------------------------------------------------
 void ProtocolDataStructuresInit(void)

@@ -7,7 +7,7 @@
 typedef struct
 {
 	uint8_t header;
-	uint16_t cmd_id;
+	uint16_t cmd_id; // TODO это желательно перенести в ProtocolDataStructures так как это его зона ответственности
 	uint8_t first_data_byte;
 } t_uart_data_struct;
 #pragma pack(pop)
@@ -21,7 +21,7 @@ void ProtocolInit(t_protocol *prot)
 	ProtocolDataStructuresInit();
 }
 // ----------------------------------------------------------------------------
-uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size) // TODO реализавать
+uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size)
 {
 	const uint8_t *pucStr = data;
 	uint8_t usStartValue = 0xFF;
@@ -67,10 +67,6 @@ bool ProtocolStructureFind(t_protocol *prot)
 					res = true;
 					printf("\ncrc = ok\n");
 				}
-//				else
-//				{
-//					printf("crc = not ok\n");
-//				}
 			}
 		}
 	}
@@ -109,10 +105,42 @@ void ProtocolFindPacket(t_protocol *prot)
 	}
 }
 // ----------------------------------------------------------------------------
+void ProtocolPeriodicalRequestSend(t_protocol *prot) // TODO это тестовое формирование данных на отправку
+{
+	static uint8_t tx_buf[100] = {0};
+	t_uart_data_struct *uart_data;
+
+	uart_data = tx_buf;
+	uart_data->header = HEAD;
+
+	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( &uart_data->cmd_id, 100);
+
+	printf("\ntx_data_size = %u", tx_data_size);
+
+	uint16_t crc_position = tx_data_size + sizeof(uart_data->header);
+
+	tx_buf[crc_position] = ProtocolCrcXorCalk(&uart_data->header, crc_position);
+
+	tx_data_size = crc_position + 1;
+	printf("\nheader = %X", uart_data->header);
+	printf("\ncmd_id = %X", uart_data->cmd_id);
+	printf("\ncrc = %X", tx_buf[crc_position]);
+	printf("\nall bytes size = %u", tx_data_size);
+	printf("\n");
+
+	for(int i = 0; i < tx_data_size; ++i)
+	{
+		printf("%X:", tx_buf[i]);
+	}
+
+	prot->uart_sent_data(tx_buf, tx_data_size);
+}
+// ----------------------------------------------------------------------------
 void ProtocolRun(t_protocol *prot)
 {
 	if(prot == NULL) return;
 
-	ProtocolFindPacket(prot);
+	//ProtocolFindPacket(prot);
+	ProtocolPeriodicalRequestSend(prot);
 }
 // ----------------------------------------------------------------------------
