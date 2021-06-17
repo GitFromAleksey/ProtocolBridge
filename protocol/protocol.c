@@ -10,11 +10,20 @@ void ProtocolInit(t_protocol *prot)
 	prot->rx_buf_cnt = RX_BUF_CNT_MAX;
 }
 // ----------------------------------------------------------------------------
-uint8_t ProtocolCrcCalk(uint8_t *data, uint8_t size) // TODO реализавать
+uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size) // TODO реализавать
 {
-	uint8_t res = CRC8_TEST;
+	const uint8_t *pucStr = data;
+	uint8_t usStartValue = 0xFF;
 
-	return res;
+	if(size)
+	{
+		do
+		{
+		  usStartValue = usStartValue ^ *pucStr++;
+		} while(--size);
+	}
+
+	return usStartValue;
 }
 // ----------------------------------------------------------------------------
 bool ProtocolStructureFind(t_protocol *prot)
@@ -28,19 +37,19 @@ bool ProtocolStructureFind(t_protocol *prot)
 	{
 		p_uart_packet = (t_uart_data_struct *)&prot->packet_buf[0];
 
-		if(p_uart_packet->header == HEAD) // проверяем на всякий случай
+		if(p_uart_packet->header == HEAD) // проверяем на всякий случай. можно и не проверять
 		{
 			data_size = ProtocolDataStructuresGetDataSize(p_uart_packet->cmd_id);
+			// вычисление позиции расположения crc. оно же - размер принятых данных
 			data_size +=	sizeof(p_uart_packet->cmd_id) +
-							sizeof(p_uart_packet->header) +
-							sizeof(crc);
+							sizeof(p_uart_packet->header);
 
-			if(data_size == prot->rx_buf_cnt)
+			if(data_size == prot->rx_buf_cnt) // длина принятых данных совпадает с вычисленной длиной
 			{
-				crc = ((uint8_t*)p_uart_packet)[47];
-				printf("crc = %X\n", crc);
+				crc = ((uint8_t*)p_uart_packet)[data_size];
+
 				// рассчёт crc
-				if(crc == ProtocolCrcCalk(p_uart_packet->header, data_size))
+				if(crc == ProtocolCrcXorCalk(&p_uart_packet->header, data_size))
 				{
 					res = true;
 					printf("crc = ok\n");
@@ -72,12 +81,10 @@ void ProtocolFindPacket(t_protocol *prot)
 	{
 		while(prot->uart_get_byte(&tmp)) // забираем данные пока есть
 		{
-printf("%X(%u):",tmp, prot->rx_buf_cnt);
 			prot->packet_buf[prot->rx_buf_cnt++] = tmp;
 
 			if(ProtocolStructureFind(prot) || prot->rx_buf_cnt >= RX_BUF_CNT_MAX) // превышен размер буфера, значит не было пакета
 			{
-				printf("prot->rx_buf_cnt = %u\n", prot->rx_buf_cnt);
 				prot->rx_buf_cnt = 0;
 				prot->find_start_of_packet = false; // поиск пакета заново
 			}
