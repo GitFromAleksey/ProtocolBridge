@@ -20,6 +20,6 @@ typedef struct
 } t_protocol;
 
 void ProtocolInit(t_protocol *prot);
-void ProtocolRun(t_protocol *prot);
+void ProtocolRun(void);//void ProtocolRun(t_protocol *prot);
 
 #endif /* PROTOCOL_PROTOCOL_C_ */

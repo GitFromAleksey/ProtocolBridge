@@ -15,16 +15,21 @@ typedef struct
 #define TX_BUF_SIZE	100u
 static uint8_t tx_buf[TX_BUF_SIZE] = {0};
 
+static t_protocol UART_Protocol;
+
 // ----------------------------------------------------------------------------
 void ProtocolInit(t_protocol *prot)
 {
-	prot->find_start_of_packet = false;
-	prot->rx_buf_cnt = RX_BUF_CNT_MAX;
+	UART_Protocol.find_start_of_packet = false;
+	UART_Protocol.rx_buf_cnt = RX_BUF_CNT_MAX;
+
+	UART_Protocol.uart_get_byte = prot->uart_get_byte;
+	UART_Protocol.uart_sent_data = prot->uart_sent_data;
 
 	ProtocolDataStructuresInit();
 }
 // ----------------------------------------------------------------------------
-uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size)
+static uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size)
 {
 	const uint8_t *pucStr = data;
 	uint8_t usStartValue = 0xFF;
@@ -40,7 +45,7 @@ uint8_t ProtocolCrcXorCalk(const uint8_t *data, uint8_t size)
 	return usStartValue;
 }
 // ----------------------------------------------------------------------------
-bool ProtocolStructureFind(t_protocol *prot)
+static bool ProtocolStructureFind(t_protocol *prot)
 {
 	bool res = false;
 	int16_t data_size = 0;
@@ -68,7 +73,7 @@ bool ProtocolStructureFind(t_protocol *prot)
 					// так как crc в порядке, то отправляем для разбора структуры принятых данных
 					ProtocolDataStructuresParse(&p_uart_packet->first_data_byte, p_uart_packet->cmd_id);
 					res = true;
-					printf("\ncrc = ok\n");
+printf("\nProtocol: crc = ok\n");
 				}
 			}
 		}
@@ -77,7 +82,7 @@ bool ProtocolStructureFind(t_protocol *prot)
 	return res;
 }
 // ----------------------------------------------------------------------------
-void ProtocolFindPacket(t_protocol *prot)
+static void ProtocolQueryReceive(t_protocol *prot)
 {
 	uint8_t tmp = 0;
 	if(prot == NULL) return;
@@ -108,7 +113,7 @@ void ProtocolFindPacket(t_protocol *prot)
 	}
 }
 // ----------------------------------------------------------------------------
-void ProtocolPeriodicalRequestSend(t_protocol *prot) // TODO это тестовое формирование данных на отправку
+static void ProtocolPeriodicalRequestSend(t_protocol *prot)
 {
 	t_uart_data_struct *uart_data;
 
@@ -117,32 +122,18 @@ void ProtocolPeriodicalRequestSend(t_protocol *prot) // TODO это тестовое формир
 
 	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( &uart_data->cmd_id, TX_BUF_SIZE-sizeof(uart_data->header));
 
-	printf("\ntx_data_size = %u", tx_data_size);
-
 	uint16_t crc_position = tx_data_size + sizeof(uart_data->header);
 
 	tx_buf[crc_position] = ProtocolCrcXorCalk(&uart_data->header, crc_position);
 
 	tx_data_size = crc_position + 1;
-	printf("\nheader = %X", uart_data->header);
-	printf("\ncmd_id = %X", uart_data->cmd_id);
-	printf("\ncrc = %X", tx_buf[crc_position]);
-	printf("\nall bytes size = %u", tx_data_size);
-	printf("\n");
-
-	for(int i = 0; i < tx_data_size; ++i)
-	{
-		printf("%X:", tx_buf[i]);
-	}
 
 	prot->uart_sent_data(tx_buf, tx_data_size);
 }
 // ----------------------------------------------------------------------------
-void ProtocolRun(t_protocol *prot) // TODO сделать "t_protocol *prot" внутренним статическим членом модуля
-{									// ProtocolRun() сделать без входящих параметров
-	if(prot == NULL) return;
-
-	//ProtocolFindPacket(prot);
-	ProtocolPeriodicalRequestSend(prot);
+void ProtocolRun(void)
+{
+	ProtocolQueryReceive(&UART_Protocol);
+//	ProtocolPeriodicalRequestSend(&UART_Protocol);
 }
 // ----------------------------------------------------------------------------
