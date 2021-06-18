@@ -1,6 +1,7 @@
 #include "UartInterfaceImpl.h"
 #include "protocol.h"
 #include "ProtocolDataStructures.h"
+#include "../BLE/BleDataStructures.h"
 //#include "BLE формат данных"
 
 //#include "UART формат данных"
