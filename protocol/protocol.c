@@ -138,8 +138,8 @@ void ProtocolPeriodicalRequestSend(t_protocol *prot) // TODO это тестовое формир
 	prot->uart_sent_data(tx_buf, tx_data_size);
 }
 // ----------------------------------------------------------------------------
-void ProtocolRun(t_protocol *prot)
-{
+void ProtocolRun(t_protocol *prot) // TODO сделать "t_protocol *prot" внутренним статическим членом модуля
+{									// ProtocolRun() сделать без входящих параметров
 	if(prot == NULL) return;
 
 	//ProtocolFindPacket(prot);

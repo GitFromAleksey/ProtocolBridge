@@ -15,7 +15,7 @@ static t_data_list_struct	ResponseListItem_3331;
 static t_data_list_struct	ResponseListItem_3530;
 static t_data_list_struct	ResponseListItem_3531;
 
-static t_data_list_struct * ResponsesList; // список структур ответов
+static t_data_list_struct * ResponsesList; // нециклический список ответов
 // ----------------------------------------------------------------------------
 
 // экземпляры структыр данных запросов
@@ -31,7 +31,7 @@ static t_data_list_struct	QueryListItem_3234;
 static t_data_list_struct	QueryListItem_3332;
 static t_data_list_struct	QueryListItem_3532;
 
-static t_data_list_struct * QueryesList; // список структур запросов
+static t_data_list_struct * QueryesList; // циклический список запросов
 
 // ----------------------------------------------------------------------------
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)

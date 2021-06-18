@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 //#include <stdlib.h>
-#include "../protocol/protocol.h"
 #include "../uart_moc/uart.h"
-
+#include "../protocol/protocol.h"
+#include "../Interface/Interface.h"
 
 t_protocol Protocol;
+
+i_Interface Interface;
+
+
 
 void Setup(void)
 {
@@ -27,13 +31,11 @@ int main(void)
 
 	while(thread_counter-- > 0)
 	{
-//		printf("thread_counter = %u\n", thread_counter);
-		ProtocolRun(&Protocol);
-//		for(int i = 0; i < 100; ++i)
-//		{
-//			printf("%X,", (unsigned int)Protocol.packet_buf[i]);
-//		}
-//		printf("\r");
+//		if(Interface.procRun)
+//			Interface.procRun();
+
+//		ProtocolRun(&Protocol);
+
 	}
 
 }
