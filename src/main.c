@@ -10,11 +10,17 @@
 i_Interface Interface;
 
 
+uint32_t GetTimeMs(void)
+{
+	return 0;
+}
+
+
 void Setup(void)
 {
 	UartInit();
 
-	UART_InterfaceInit_TEST(&Interface, UartGetByte, UartSentData);
+	UART_InterfaceInit_TEST(&Interface, GetTimeMs, UartGetByte, UartSentData);
 }
 
 int main(void)

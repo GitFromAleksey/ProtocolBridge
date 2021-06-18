@@ -23,6 +23,7 @@ void ProtocolInit(t_protocol *prot)
 	UART_Protocol.find_start_of_packet = false;
 	UART_Protocol.rx_buf_cnt = RX_BUF_CNT_MAX;
 
+	UART_Protocol.get_time_ms = prot->get_time_ms;
 	UART_Protocol.uart_get_byte = prot->uart_get_byte;
 	UART_Protocol.uart_sent_data = prot->uart_sent_data;
 
@@ -134,6 +135,8 @@ static void ProtocolPeriodicalRequestSend(t_protocol *prot)
 void ProtocolRun(void)
 {
 	ProtocolQueryReceive(&UART_Protocol);
-//	ProtocolPeriodicalRequestSend(&UART_Protocol);
+
+	UART_Protocol.get_time_ms(); // TODO доделать периодическую отправку по времени
+	ProtocolPeriodicalRequestSend(&UART_Protocol);
 }
 // ----------------------------------------------------------------------------

@@ -225,6 +225,13 @@ typedef struct // эта структура дл€ создани€ списка экземпл€ров структур данных
 	void *p_next_item;	// указатель на следующий объект
 } t_data_list_struct;
 
+// экземпл€ры структур дл€ хранени€ данных, полученых от UART устройства
+extern t_3231_accept_parameters_response					ResponseData_3231;
+extern t_3331_receive_information_on_device_response		ResponseData_3331;
+extern t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
+extern t_3531_request_indication_and_auto_settings_response	ResponseData_3531;
+
+
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
 void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id);
 uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size);

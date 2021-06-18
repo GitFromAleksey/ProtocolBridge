@@ -3,11 +3,11 @@
 
 // ----------------------------------------------------------------------------
 
-// экземпл€ры структыр данных ответов
-static t_3231_accept_parameters_response					ResponseData_3231;
-static t_3331_receive_information_on_device_response		ResponseData_3331;
-static t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
-static t_3531_request_indication_and_auto_settings_response ResponseData_3531;
+// экземпл€ры структур дл€ хранени€ данных, полученых от UART устройства
+t_3231_accept_parameters_response						ResponseData_3231;
+t_3331_receive_information_on_device_response			ResponseData_3331;
+t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
+t_3531_request_indication_and_auto_settings_response	ResponseData_3531;
 
 // элементы списка ответов
 static t_data_list_struct	ResponseListItem_3231;
@@ -95,7 +95,7 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 		first_list_item = first_list_item->p_next_item;
 	}
 
-	// test
+	// TODO test
 //	switch(cmd_id)
 //	{
 //	case CMD_ID_3531:
