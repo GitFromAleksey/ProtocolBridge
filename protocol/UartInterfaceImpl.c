@@ -13,14 +13,13 @@
 #define SEND_BUF_SIZE	100u
 static uint8_t SendBuf[SEND_BUF_SIZE];
 
+void (*BleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
+
 
 // ----------------------------------------------------------------------------
 void SendUartData(uint16_t cmd_id, uint8_t *data_guery)
 {
-	// TODO отправка данных устройству
-printf("\nSendUartData(cmd_id = %X", cmd_id);
 	ProtocolDataStructuresSendDataFromBle(cmd_id, data_guery);
-
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3230(uint32_t ble_cmd_id, uint8_t *data)
@@ -28,7 +27,7 @@ static void ConvertQuery_3230(uint32_t ble_cmd_id, uint8_t *data)
 	if(CMD_ID_BLE_QUERY_3230 != ble_cmd_id)
 		return;
 
-	printf("ConvertQuery_3230(ble_cmd_id = %X", ble_cmd_id);
+//	printf("ConvertQuery_3230(ble_cmd_id = %X", ble_cmd_id);
 
 	uint8_t tmp;
 	t_3230_ble_set_parameters_query *ble_query = (t_3230_ble_set_parameters_query*)data;
@@ -126,17 +125,17 @@ static void ConvertQuery_3532(uint32_t ble_cmd_id, uint8_t *data)
 // ----------------------------------------------------------------------------
 void UART_SetData (uint32_t ble_cmd_id, uint8_t *data)
 {
-printf("\nUART_SetData(cmd = %X)\n", ble_cmd_id);
-	// TODO тут должен быть вызов на отправку данных в UART
 	ConvertQuery_3230( ble_cmd_id, data);
-//	ConvertQuery_3232( ble_cmd_id, data);
-//	ConvertQuery_3234( ble_cmd_id, data);
-//	ConvertQuery_3132( ble_cmd_id, data);
-//	ConvertQuery_3332( ble_cmd_id, data);
-//	ConvertQuery_3630( ble_cmd_id, data);
-//	ConvertQuery_3632( ble_cmd_id, data);
-//	ConvertQuery_3530( ble_cmd_id, data);
-//	ConvertQuery_3532( ble_cmd_id, data);
+	ConvertQuery_3232( ble_cmd_id, data);
+	ConvertQuery_3234( ble_cmd_id, data);
+	ConvertQuery_3132( ble_cmd_id, data);
+	ConvertQuery_3332( ble_cmd_id, data);
+	ConvertQuery_3630( ble_cmd_id, data);
+	ConvertQuery_3632( ble_cmd_id, data);
+	ConvertQuery_3530( ble_cmd_id, data);
+	ConvertQuery_3532( ble_cmd_id, data);
+
+	BleGetDataCallback(ble_cmd_id, data); // TODO тест
 }
 // ----------------------------------------------------------------------------
 uint32_t UART_GetData (uint8_t *data) // return ble_cmd_id
@@ -164,9 +163,9 @@ void UART_InterfaceInit(i_Interface *interface,
 
 	ProtocolInit(&prot);
 
-	interface->SetData = UART_SetData;
-	interface->GetData = UART_GetData;
+	interface->uartSendData = UART_SetData;
 	interface->procRun = ProtocolRun;
 
+	BleGetDataCallback = interface->bleGetDataCallback;
 }
 // ----------------------------------------------------------------------------

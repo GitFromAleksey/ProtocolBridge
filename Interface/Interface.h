@@ -6,8 +6,8 @@
 
 typedef struct
 {
-	void		(*SetData) (uint32_t ble_cmd_id, uint8_t *data);
-	uint32_t	(*GetData) (uint8_t *data); // return ble_cmd_id
+	void (*uartSendData)			(uint32_t ble_cmd_id, uint8_t *data);
+	void (*bleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
 
 	void (*procRun) (void);
 } i_Interface;
