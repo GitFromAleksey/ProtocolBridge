@@ -6,8 +6,11 @@
 #include "../Interface/Interface.h"
 #include "../protocol/UartInterfaceImpl.h"
 
+#include "../BLE/BleDataStructures.h"
 
 i_Interface Interface;
+
+t_3230_ble_set_parameters_query ble_query;
 
 
 uint32_t TimeMs = 0;
@@ -21,7 +24,7 @@ void Setup(void)
 {
 	UartInit();
 
-	UART_InterfaceInit_TEST(&Interface, GetTimeMs, UartGetByte, UartSentData);
+	UART_InterfaceInit(&Interface, GetTimeMs, UartGetByte, UartSentData);
 }
 
 int main(void)
@@ -31,6 +34,8 @@ int main(void)
 	printf("Run main()!!!\n");
 
 	Setup();
+
+	Interface.SetData(CMD_ID_BLE_QUERY_3230, (uint8_t*)&ble_query);
 
 	while(thread_counter-- > 0)
 	{

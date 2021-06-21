@@ -2,6 +2,7 @@
 #define PROTOCOL_PROTOCOLDATASTRUCTURES_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 
 
 typedef enum // TODO cmd_id для удобства нужно разделить на два энума для query и request
@@ -235,6 +236,7 @@ extern t_3531_request_indication_and_auto_settings_response	ResponseData_3531;
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id);
 void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id);
 uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size);
+void ProtocolDataStructuresSendDataFromBle(uint16_t cmd_id, uint8_t *data_guery);
 void ProtocolDataStructuresInit(void);
 
 #endif /* PROTOCOL_PROTOCOLDATASTRUCTURES_H_ */

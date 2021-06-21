@@ -21,6 +21,7 @@ typedef struct
 	void (*uart_sent_data)(uint8_t *data, uint8_t size);
 } t_protocol;
 
+
 void ProtocolInit(t_protocol *prot);
 void ProtocolRun(void);//void ProtocolRun(t_protocol *prot);
 

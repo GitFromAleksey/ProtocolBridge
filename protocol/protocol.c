@@ -18,7 +18,7 @@ typedef struct
 #define TX_BUF_SIZE	100u
 static uint8_t tx_buf[TX_BUF_SIZE] = {0};
 
-static t_protocol UART_Protocol;
+t_protocol UART_Protocol;
 
 // ----------------------------------------------------------------------------
 void ProtocolInit(t_protocol *prot)
@@ -119,14 +119,14 @@ static void ProtocolQueryReceive(t_protocol *prot)
 	}
 }
 // ----------------------------------------------------------------------------
-static void ProtocolPeriodicalRequestSend(t_protocol *prot)
+static void ProtocolRequestSend(t_protocol *prot)
 {
 	t_uart_data_struct *uart_data;
 
 	uart_data = tx_buf;
 	uart_data->header = HEAD;
 
-	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( &uart_data->cmd_id, TX_BUF_SIZE-sizeof(uart_data->header));
+	uint16_t tx_data_size = ProtocolDataStructuresGetNextRequest( (uint8_t*)&uart_data->cmd_id, TX_BUF_SIZE-sizeof(uart_data->header));
 
 	uint16_t crc_position = tx_data_size + sizeof(uart_data->header);
 
@@ -144,7 +144,7 @@ void ProtocolRun(void)
 	if( (UART_Protocol.get_time_ms() - PreviousRequestTimeMs) > PERIODICAL_REQUEST_TIM_MS )
 	{
 		PreviousRequestTimeMs = UART_Protocol.get_time_ms();
-		ProtocolPeriodicalRequestSend(&UART_Protocol);
+		ProtocolRequestSend(&UART_Protocol);
 printf("PreviousRequestTimeMs = %u\n", PreviousRequestTimeMs);
 	}
 

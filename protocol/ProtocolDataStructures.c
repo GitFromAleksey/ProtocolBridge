@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <string.h>
 #include "ProtocolDataStructures.h"
 
 // ----------------------------------------------------------------------------
@@ -19,11 +20,11 @@ static t_data_list_struct * ResponsesList; // нециклический список ответов
 // ----------------------------------------------------------------------------
 
 // экземпляры структыр данных запросов
-static t_3230_set_parameters_query					Query_3230;
-static t_3232_request_parameters_query				Query_3232;
-static t_3234_set_parameters_nonvolatile_mem_query	Query_3234;
-static t_3332_request_information_on_device_query	Query_3332;
-static t_3532_request_indication_and_auto_settings_query									Query_3532;
+static t_3230_set_parameters_query							Query_3230;
+static t_3232_request_parameters_query						Query_3232;
+static t_3234_set_parameters_nonvolatile_mem_query			Query_3234;
+static t_3332_request_information_on_device_query			Query_3332;
+static t_3532_request_indication_and_auto_settings_query	Query_3532;
 // элементы списка запросов
 static t_data_list_struct	QueryListItem_3230;
 static t_data_list_struct	QueryListItem_3232;
@@ -32,6 +33,12 @@ static t_data_list_struct	QueryListItem_3332;
 static t_data_list_struct	QueryListItem_3532;
 
 static t_data_list_struct * QueryesList; // циклический список запросов
+
+
+#define SIZE_QUERY_FROM_BLE	50u
+uint8_t QueryBleBuf[SIZE_QUERY_FROM_BLE];
+static t_data_list_struct QueryFromBle; //
+bool BleQueryNeedToSend = false;
 
 // ----------------------------------------------------------------------------
 int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)
@@ -56,23 +63,20 @@ int16_t ProtocolDataStructuresGetDataSize(uint16_t cmd_id)
 
 	// RESPONSES
 		case CMD_ID_3230:
-//			printf("Find CMD_ID_3230 = 0x%X\n", CMD_ID_3230);
+			result = DATA_SIZE_3230;
 			break;
-
 		case CMD_ID_3232:
-//			printf("Find CMD_ID_3232 = 0x%X\n", CMD_ID_3232);
+			result = DATA_SIZE_3232;
 			break;
 		case CMD_ID_3234:
-//			printf("Find CMD_ID_3234 = 0x%X\n", CMD_ID_3234);
+			result = DATA_SIZE_3234;
 			break;
 		case CMD_ID_3332:
-//			printf("Find CMD_ID_3332 = 0x%X\n", CMD_ID_3332);
+			result = DATA_SIZE_3332;
 			break;
-
 		case CMD_ID_3532:
-//			printf("Find CMD_ID_3532 = 0x%X\n", CMD_ID_3532);
+			result = DATA_SIZE_3532;
 			break;
-
 		default:
 			result = -1;
 			break;
@@ -94,36 +98,9 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 		}
 		first_list_item = first_list_item->p_next_item;
 	}
-
-	// это тестовые сообщения
-//	switch(cmd_id)
-//	{
-//	case CMD_ID_3531:
-//		printf("\nPM2_5_value_for_Red_indication = %X", ResponseData_3531.PM2_5_value_for_Red_indication);
-//		printf("\nPM2_5_hysteresis_setting = %X", ResponseData_3531.PM2_5_hysteresis_setting);
-//		printf("\nVOC_level_for_6_speed = %X", ResponseData_3531.VOC_level_for_6_speed);
-//		break;
-//	case CMD_ID_3530:
-//		printf("\nPM2_5_value_for_Red_indication = %X", ResponseData_3530.PM2_5_value_for_Red_indication);
-//		printf("\nVOC_level_for_6_speed = %X", ResponseData_3530.VOC_level_for_6_speed);
-//		break;
-//	case CMD_ID_3331:
-//		printf("\nModeOfOperation = %X", ResponseData_3331.ModeOfOperation);
-//		printf("\nDeviceType = %X", ResponseData_3331.DeviceType);
-//		printf("\nBoardVersion = %X", ResponseData_3331.BoardVersion);
-//		break;
-//	case CMD_ID_3231:
-//		printf("\nDeviceOnOff = %X", ResponseData_3231.u16_status_bit_fld.DeviceOnOff);
-//		printf("\nreserve = %X", ResponseData_3231.u16_status_bit_fld.reserve);
-//
-//		printf("\nMaximumNumbersOfSpeeds = %X", ResponseData_3231.MaximumNumbersOfSpeeds);
-//		printf("\nSleepTimerCurrentValue = %X", ResponseData_3231.SleepTimerCurrentValue);
-//		printf("\nErrorBitField = %X", ResponseData_3231.ErrorBitField);
-//
-//		printf("\nPairing = %X", ResponseData_3231.u8_service_bit_fld.Pairing);
-//		break;
-//	}
 }
+// ----------------------------------------------------------------------------
+
 // ----------------------------------------------------------------------------
 // записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
 uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size)
@@ -131,25 +108,57 @@ uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size)
 	uint16_t data_cnt;
 	uint16_t cmd_id;
 	uint16_t query_size;
+	void * p_data;
 
-	cmd_id = QueryesList->cmd_id;
-	query_size = QueryesList->data_size;
+	if(BleQueryNeedToSend)
+	{
+		cmd_id = QueryFromBle.cmd_id;
+		query_size = QueryFromBle.data_size;
+		p_data = QueryFromBle.p_data;
+	}
+	else
+	{
+		cmd_id = QueryesList->cmd_id;
+		query_size = QueryesList->data_size;
+		p_data = QueryesList->p_data;
+	}
+
 
 	data_cnt = 0;
 
 	memcpy(&data[data_cnt], &cmd_id, sizeof(uint16_t));
 	data_cnt += sizeof(uint16_t);
 
-	memcpy(&data[data_cnt], QueryesList->p_data, query_size);
+	memcpy(&data[data_cnt], p_data, query_size);
 	data_cnt += query_size;
 
-	QueryesList = (t_data_list_struct*)QueryesList->p_next_item;
+	if(!BleQueryNeedToSend)
+		QueryesList = (t_data_list_struct*)QueryesList->p_next_item;
+	else
+		BleQueryNeedToSend = false;
 
 	return data_cnt;
 }
 // ----------------------------------------------------------------------------
+// помещает в очередь внешний запрос от BLE устройства
+void ProtocolDataStructuresSendDataFromBle(uint16_t cmd_id, uint8_t *data_guery)
+{
+	int16_t data_size = ProtocolDataStructuresGetDataSize(cmd_id);
+
+	if(data_size < 0)
+		return;
+
+	memcpy( QueryBleBuf, data_guery, data_size);
+	QueryFromBle.cmd_id = cmd_id;
+	QueryFromBle.data_size = data_size;
+
+	BleQueryNeedToSend = true;
+}
+// ----------------------------------------------------------------------------
 void ProtocolDataStructuresInit(void)
 {
+	QueryFromBle.p_data = QueryBleBuf;
+	BleQueryNeedToSend = false;
 	// ------------------------------------------------------------
 	ResponseListItem_3231.cmd_id		= CMD_ID_3231;
 	ResponseListItem_3231.p_data		= (void*)&ResponseData_3231;

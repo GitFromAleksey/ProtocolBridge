@@ -5,24 +5,24 @@
 
 typedef enum
 {
-	CMD_ID_BLE_QUERY_3230 = (uint16_t)0x3230,
-	CMD_ID_BLE_QUERY_3232 = (uint16_t)0x3232,
-	CMD_ID_BLE_QUERY_3234 = (uint16_t)0x3234,
-	CMD_ID_BLE_QUERY_3132 = (uint16_t)0x3132,
-	CMD_ID_BLE_QUERY_3332 = (uint16_t)0x3332,
-	CMD_ID_BLE_QUERY_3630 = (uint16_t)0x3630,
-	CMD_ID_BLE_QUERY_3632 = (uint16_t)0x3632,
-	CMD_ID_BLE_QUERY_3530 = (uint16_t)0x3530,
-	CMD_ID_BLE_QUERY_3532 = (uint16_t)0x3532
+	CMD_ID_BLE_QUERY_3230 = (uint32_t)0x3230,
+	CMD_ID_BLE_QUERY_3232 = (uint32_t)0x3232,
+	CMD_ID_BLE_QUERY_3234 = (uint32_t)0x3234,
+	CMD_ID_BLE_QUERY_3132 = (uint32_t)0x3132,
+	CMD_ID_BLE_QUERY_3332 = (uint32_t)0x3332,
+	CMD_ID_BLE_QUERY_3630 = (uint32_t)0x3630,
+	CMD_ID_BLE_QUERY_3632 = (uint32_t)0x3632,
+	CMD_ID_BLE_QUERY_3530 = (uint32_t)0x3530,
+	CMD_ID_BLE_QUERY_3532 = (uint32_t)0x3532
 } t_ble_cmd_id_query;
 
 typedef enum
 {
-	CMD_ID_BLE_RESPONSE_3231 = (uint16_t)0x3231,
-	CMD_ID_BLE_RESPONSE_3131 = (uint16_t)0x3131,
-	CMD_ID_BLE_RESPONSE_3331 = (uint16_t)0x3331,
-	CMD_ID_BLE_RESPONSE_3631 = (uint16_t)0x3631,
-	CMD_ID_BLE_RESPONSE_3531 = (uint16_t)0x3531
+	CMD_ID_BLE_RESPONSE_3231 = (uint32_t)0x3231,
+	CMD_ID_BLE_RESPONSE_3131 = (uint32_t)0x3131,
+	CMD_ID_BLE_RESPONSE_3331 = (uint32_t)0x3331,
+	CMD_ID_BLE_RESPONSE_3631 = (uint32_t)0x3631,
+	CMD_ID_BLE_RESPONSE_3531 = (uint32_t)0x3531
 } t_ble_cmd_id_response;
 
 // ---------------------------------------------------------------------
@@ -48,7 +48,7 @@ typedef struct
 
 typedef struct
 {
-	t_3231_uint16_status_bit_field u16_status_bit_fld;
+	t_3230_ble_status_bit_field u16_status_bit_fld;
 
 	int8_t FunSpeed;
 	int8_t SleepTimerSettings;
