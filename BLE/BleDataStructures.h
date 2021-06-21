@@ -25,7 +25,8 @@ typedef enum
 	CMD_ID_BLE_RESPONSE_3531 = (uint16_t)0x3531
 } t_ble_cmd_id_response;
 
-
+// ---------------------------------------------------------------------
+// QUERYES
 // --------------------------------------------------------------------------------
 typedef struct
 {
@@ -55,12 +56,12 @@ typedef struct
 	uint16_t TimeLaftToAntibacterialLayerExpire;
 
 	uint16_t  Filter_CCM;
-} t_3230_ble_set_parameters_queri;
+} t_3230_ble_set_parameters_query;
 // --------------------------------------------------------------------------------
 typedef struct
 {
 	// null data
-} t_3232_ble_request_parameters_queri;
+} t_3232_ble_request_parameters_query;
 // --------------------------------------------------------------------------------
 typedef struct
 {
@@ -89,10 +90,89 @@ typedef struct
 // --------------------------------------------------------------------------------
 typedef struct
 {
-	// TODO дописать
-} t_3530_ble__query;
+	uint16_t PM2_5_value_for_Red_indication;
+	uint16_t PM2_5_value_for_Yellow_indication;
+	uint16_t PM2_5_value_for_Green_indication;
+	uint16_t PM2_5_value_for_Motor_Off;
+	uint16_t PM2_5_value_for_1_speed;
+	uint16_t PM2_5_value_for_2_speed;
+	uint16_t PM2_5_value_for_3_speed;
+	uint16_t PM2_5_value_for_4_speed;
+	uint16_t PM2_5_value_for_5_speed;
+	uint16_t PM2_5_value_for_6_speed;
+	uint16_t PM2_5_hysteresis_setting;
+	uint16_t PM2_5_measurement_time_setting;
+	uint16_t VOC_level_for_Red_indication;
+	uint16_t VOC_level_for_Yellow_indication;
+	uint16_t VOC_level_for_Green_indication;
+	uint16_t VOC_level_for_Motor_Off;
+	uint16_t VOC_level_for_1_speed;
+	uint16_t VOC_level_for_2_speed;
+	uint16_t VOC_level_for_3_speed;
+	uint16_t VOC_level_for_4_speed;
+	uint16_t VOC_level_for_5_speed;
+	uint16_t VOC_level_for_6_speed;
+} t_3530_ble_set_indication_and_auto_settings_query;
 // --------------------------------------------------------------------------------
+typedef struct
+{
+	// null data
+} t_3532_ble_request_indication_and_auto_settings_query;
 
+// ---------------------------------------------------------------------
+// RESPONSES
+// ---------------------------------------------------------------------
+typedef struct
+{
+
+} t_3231_ble_accept_parameters_command_response;
+// ---------------------------------------------------------------------
+typedef struct
+{
+	uint8_t RandomeData[1024]; // Random test data of 1024 byte.
+} t_3131_ble_test_response;
+// ---------------------------------------------------------------------
+typedef struct
+{
+	int8_t ModeOfOperation;		// 1 Ц main application operating;
+	int16_t DeviceType;			// 0x8012
+	int16_t SubDeviceType;		// 0x0000 (int 16) - "Tion IQ 200", 0x0001 (int 16) - "Tion IQ 400"
+	int16_t SoftwareVertion;	// 0x0000 .. 0xFFFF
+	int16_t BoardVersion;		// 0x0000 .. 0xFFFF
+	int8_t ReserveArray[16];	//
+} t_3331_ble_receive_information_on_device_response;
+// ---------------------------------------------------------------------
+typedef struct
+{
+	uint64_t DeviceTime; // Time in unix-time format
+} t_3631_ble__response;
+// ---------------------------------------------------------------------
+typedef struct
+{
+	uint16_t PM2_5_value_for_Red_indication;
+	uint16_t PM2_5_value_for_Yellow_indication;
+	uint16_t PM2_5_value_for_Green_indication;
+	uint16_t PM2_5_value_for_Motor_Off;
+	uint16_t PM2_5_value_for_1_speed;
+	uint16_t PM2_5_value_for_2_speed;
+	uint16_t PM2_5_value_for_3_speed;
+	uint16_t PM2_5_value_for_4_speed;
+	uint16_t PM2_5_value_for_5_speed;
+	uint16_t PM2_5_value_for_6_speed;
+	uint16_t PM2_5_hysteresis_setting;
+	uint16_t PM2_5_measurement_time_setting;
+	uint16_t VOC_level_for_Red_indication;
+	uint16_t VOC_level_for_Yellow_indication;
+	uint16_t VOC_level_for_Green_indication;
+	uint16_t VOC_level_for_Motor_Off;
+	uint16_t VOC_level_for_1_speed;
+	uint16_t VOC_level_for_2_speed;
+	uint16_t VOC_level_for_3_speed;
+	uint16_t VOC_level_for_4_speed;
+	uint16_t VOC_level_for_5_speed;
+	uint16_t VOC_level_for_6_speed;
+} t_3531_ble_request_indication_and_auto_settings_response;
+// ---------------------------------------------------------------------
 
 
 #endif /* BLE_BLEDATASTRUCTURES_H_ */

@@ -23,7 +23,7 @@ static t_3230_set_parameters_query					Query_3230;
 static t_3232_request_parameters_query				Query_3232;
 static t_3234_set_parameters_nonvolatile_mem_query	Query_3234;
 static t_3332_request_information_on_device_query	Query_3332;
-static t_3532_query									Query_3532;
+static t_3532_request_indication_and_auto_settings_query									Query_3532;
 // элементы списка запросов
 static t_data_list_struct	QueryListItem_3230;
 static t_data_list_struct	QueryListItem_3232;
@@ -95,7 +95,7 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 		first_list_item = first_list_item->p_next_item;
 	}
 
-	// TODO test
+	// это тестовые сообщения
 //	switch(cmd_id)
 //	{
 //	case CMD_ID_3531:

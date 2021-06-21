@@ -10,9 +10,10 @@
 i_Interface Interface;
 
 
+uint32_t TimeMs = 0;
 uint32_t GetTimeMs(void)
 {
-	return 0;
+	return TimeMs;
 }
 
 
@@ -33,6 +34,7 @@ int main(void)
 
 	while(thread_counter-- > 0)
 	{
+		TimeMs += 10;
 		if(Interface.procRun)
 			Interface.procRun();
 	}

@@ -160,7 +160,7 @@ void UartSentData(uint8_t *data, uint8_t size)
 
 	if(data[size-1] == CrcXorCalk(data, size-1))
 	{
-		printf("\nUartSentData: crc - ok");
+		printf("\nUartSentData: crc = 0x%X - ok\n", data[size-1]);
 	}
 }
 // ----------------------------------------------------------------------------

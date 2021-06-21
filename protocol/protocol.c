@@ -3,6 +3,9 @@
 
 #define HEAD	(uint8_t)0x23
 
+#define PERIODICAL_REQUEST_TIM_MS	10u
+static uint32_t PreviousRequestTimeMs;
+
 #pragma pack(push, 1)
 typedef struct
 {
@@ -20,6 +23,8 @@ static t_protocol UART_Protocol;
 // ----------------------------------------------------------------------------
 void ProtocolInit(t_protocol *prot)
 {
+	PreviousRequestTimeMs = 0;
+
 	UART_Protocol.find_start_of_packet = false;
 	UART_Protocol.rx_buf_cnt = RX_BUF_CNT_MAX;
 
@@ -74,7 +79,7 @@ static bool ProtocolStructureFind(t_protocol *prot)
 					// так как crc в порядке, то отправляем для разбора структуры принятых данных
 					ProtocolDataStructuresParse(&p_uart_packet->first_data_byte, p_uart_packet->cmd_id);
 					res = true;
-printf("\nProtocol: crc = ok\n");
+printf("\nProtocol: crc = 0x%X - ok\n", crc);
 				}
 			}
 		}
@@ -136,7 +141,12 @@ void ProtocolRun(void)
 {
 	ProtocolQueryReceive(&UART_Protocol);
 
-	UART_Protocol.get_time_ms(); // TODO доделать периодическую отправку по времени
-	ProtocolPeriodicalRequestSend(&UART_Protocol);
+	if( (UART_Protocol.get_time_ms() - PreviousRequestTimeMs) > PERIODICAL_REQUEST_TIM_MS )
+	{
+		PreviousRequestTimeMs = UART_Protocol.get_time_ms();
+		ProtocolPeriodicalRequestSend(&UART_Protocol);
+printf("PreviousRequestTimeMs = %u\n", PreviousRequestTimeMs);
+	}
+
 }
 // ----------------------------------------------------------------------------

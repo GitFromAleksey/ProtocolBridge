@@ -21,7 +21,7 @@ typedef enum // TODO cmd_id дл€ удобства нужно разделить на два энума дл€ query 
 // ---------------------------------------------------------------------
 // RESPONSES
 // ---------------------------------------------------------------------
-typedef struct // TODO была замена типа unsigned на uint16_t. Ќужно проверить как будут паковатьс€ данные
+typedef struct
 {
 	uint16_t DeviceOnOff				: 1;
 	uint16_t SoundIndicationOnOff		: 1;
@@ -37,7 +37,7 @@ typedef struct // TODO была замена типа unsigned на uint16_t. Ќужно проверить ка
 	uint16_t reserve					: 3;
 } t_3231_uint16_status_bit_field;
 
-typedef struct // TODO была замена типа unsigned на uint8_t. Ќужно проверить как будут паковатьс€ данные
+typedef struct
 {
 	uint8_t Pairing		: 1;
 	uint8_t reserved	: 7;
@@ -211,9 +211,9 @@ typedef struct // 23 32 33 DD
 typedef struct
 {
 	// null data
-} t_3532_query;
+} t_3532_request_indication_and_auto_settings_query;
 
-#define DATA_SIZE_3532	(uint16_t)(sizeof(t_3532_query))
+#define DATA_SIZE_3532	(uint16_t)(sizeof(t_3532_request_indication_and_auto_settings_query))
 // ---------------------------------------------------------------------
 
 typedef struct // эта структура дл€ создани€ списка экземпл€ров структур данных
