@@ -6,10 +6,16 @@
 
 typedef struct
 {
-	void (*uartSendData)			(uint32_t ble_cmd_id, uint8_t *data);
+
+} t_uart_error_evt;
+
+typedef struct
+{
+	void (*uartSendData)		(uint32_t ble_cmd_id, uint8_t *data);
 	void (*bleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
 
 	void (*procRun) (void);
+	void (*uartErrorHandler)(t_uart_error_evt *evt);
 } i_Interface;
 
 

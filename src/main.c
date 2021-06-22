@@ -24,12 +24,17 @@ void BleDataCallback(uint32_t ble_cmd_id, uint8_t *data)
 	printf("\nBleDataCallback(ble_cmd_id = %X\n", ble_cmd_id);
 }
 
+void UartErrorHandler(t_uart_error_evt *evt)
+{
+	printf("\nUartErrorHandler\n");
+}
 
 void Setup(void)
 {
 	UartInit();
 
 	Interface.bleGetDataCallback = BleDataCallback;
+	Interface.uartErrorHandler = UartErrorHandler;
 
 	UART_InterfaceInit(&Interface, GetTimeMs, UartGetByte, UartSentData);
 }
@@ -37,7 +42,7 @@ void Setup(void)
 int main(void)
 {
 //	uint8_t tmp = 0;
-	int thread_counter = 10;
+	int thread_counter = 20;
 	printf("Run main()!!!\n");
 
 	Setup();

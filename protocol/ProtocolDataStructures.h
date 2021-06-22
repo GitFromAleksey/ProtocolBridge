@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 
-typedef enum // TODO cmd_id для удобства нужно разделить на два энума для query и request
+typedef enum // TODO cmd_id РґР»СЏ СѓРґРѕР±СЃС‚РІР° РЅСѓР¶РЅРѕ СЂР°Р·РґРµР»РёС‚СЊ РЅР° РґРІР° СЌРЅСѓРјР° РґР»СЏ query Рё request
 {
 	CMD_ID_3230 = (uint16_t)0x3230,
 	CMD_ID_3231 = (uint16_t)0x3231,
@@ -97,7 +97,7 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
-	int8_t ModeOfOperation;		// 1 – main application operating;
+	int8_t ModeOfOperation;		// 1 вЂ“ main application operating;
 	int16_t DeviceType;			// 0x8012
 	int16_t SubDeviceType;		// 0x0000 (int 16) - "Tion IQ 200", 0x0001 (int 16) - "Tion IQ 400"
 	int16_t SoftwareVertion;	// 0x0000 .. 0xFFFF
@@ -217,16 +217,16 @@ typedef struct
 #define DATA_SIZE_3532	(uint16_t)(sizeof(t_3532_request_indication_and_auto_settings_query))
 // ---------------------------------------------------------------------
 
-typedef struct // эта структура для создания списка экземпляров структур данных
-// это нужно для реализации автоматического копирования данных в экземпляры
+typedef struct // СЌС‚Р° СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ СЃРѕР·РґР°РЅРёСЏ СЃРїРёСЃРєР° СЌРєР·РµРјРїР»СЏСЂРѕРІ СЃС‚СЂСѓРєС‚СѓСЂ РґР°РЅРЅС‹С…
+// СЌС‚Рѕ РЅСѓР¶РЅРѕ РґР»СЏ СЂРµР°Р»РёР·Р°С†РёРё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕРіРѕ РєРѕРїРёСЂРѕРІР°РЅРёСЏ РґР°РЅРЅС‹С… РІ СЌРєР·РµРјРїР»СЏСЂС‹
 {
 	t_cmd_id cmd_id; //
-	uint16_t data_size;	// размер структуры данных
-	void *p_data;	// указатель на структуру данных
-	void *p_next_item;	// указатель на следующий объект
+	uint16_t data_size;	// СЂР°Р·РјРµСЂ СЃС‚СЂСѓРєС‚СѓСЂС‹ РґР°РЅРЅС‹С…
+	void *p_data;	// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР°РЅРЅС‹С…
+	void *p_next_item;	// СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃР»РµРґСѓСЋС‰РёР№ РѕР±СЉРµРєС‚
 } t_data_list_struct;
 
-// экземпляры структур для хранения данных, полученых от UART устройства
+// СЌРєР·РµРјРїР»СЏСЂС‹ СЃС‚СЂСѓРєС‚СѓСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С…, РїРѕР»СѓС‡РµРЅС‹С… РѕС‚ UART СѓСЃС‚СЂРѕР№СЃС‚РІР°
 extern t_3231_accept_parameters_response					ResponseData_3231;
 extern t_3331_receive_information_on_device_response		ResponseData_3331;
 extern t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
