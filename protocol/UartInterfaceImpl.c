@@ -3,18 +3,18 @@
 #include "protocol.h"
 #include "ProtocolDataStructures.h"
 #include "../BLE/BleDataStructures.h"
-//#include "BLE ôîðìàò äàííûõ"
+//#include "BLE Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð´Ð°Ð½Ð½Ñ‹Ñ…"
 
-//#include "UART ôîðìàò äàííûõ"
-//#include "UART äîñòóï ê õðàíèëèùó äàííûõ"
-//#include "UART äîñòóï ê î÷åðåäè îòïðàâêè äàííûõ"
+//#include "UART Ñ„Ð¾Ñ€Ð¼Ð°Ñ‚ Ð´Ð°Ð½Ð½Ñ‹Ñ…"
+//#include "UART Ð´Ð¾ÑÑ‚ÑƒÐ¿ Ðº Ñ…Ñ€Ð°Ð½Ð¸Ð»Ð¸Ñ‰Ñƒ Ð´Ð°Ð½Ð½Ñ‹Ñ…"
+//#include "UART Ð´Ð¾ÑÑ‚ÑƒÐ¿ Ðº Ð¾Ñ‡ÐµÑ€ÐµÐ´Ð¸ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²ÐºÐ¸ Ð´Ð°Ð½Ð½Ñ‹Ñ…"
 
-// ðåàëèçàöèÿ èíòåðôåéñà Interface.h
-#define SEND_BUF_SIZE	100u
+// Ñ€ÐµÐ°Ð»Ð¸Ð·Ð°Ñ†Ð¸Â¤ Ð¸Ð½Ñ‚ÐµÑ€Ñ„ÐµÐ¹ÑÐ° Interface.h
+#define SEND_BUF_SIZE   100u
 static uint8_t SendBuf[SEND_BUF_SIZE];
 
-void (*BleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
-
+static void (*BleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
+static void (*UartErrorHandler)(t_uart_error_evt *evt);
 
 // ----------------------------------------------------------------------------
 void SendUartData(uint16_t cmd_id, uint8_t *data_guery)
@@ -38,16 +38,16 @@ static void ConvertQuery_3230(uint32_t ble_cmd_id, uint8_t *data)
 	switch(ble_query->u16_status_bit_fld.OperationOfLightIndication)
 	{
 		case 0: // 00 - off
-			uart_query->u16_status_bit_fld.OperationOfLightIndication = 1;
+			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 1;
 			break;
-		case 1: // 01 – lower limit;
-			uart_query->u16_status_bit_fld.OperationOfLightIndication = 0;
+		case 1: // 01 Ð¦ lower limit;
+			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 0;
 			break;
-		case 2: // 10 – medium
-			uart_query->u16_status_bit_fld.OperationOfLightIndication = 2;
+		case 2: // 10 Ð¦ medium
+			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 2;
 			break;
-		case 3: // 11 – maximum
-			uart_query->u16_status_bit_fld.OperationOfLightIndication = 3;
+		case 3: // 11 Ð¦ maximum
+			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 3;
 			break;
 		default:
 			break;
@@ -70,56 +70,56 @@ static void ConvertQuery_3230(uint32_t ble_cmd_id, uint8_t *data)
 	else if( ble_query->FunSpeed >= (6*tmp) )
 		uart_query->FunSpeed = 6;
 
-	uart_query->u8_service_bit_field.ParingState = 0; // TODO íóæíî ðåøèòü êàêèì çàäàâàòü ýòîò ïàðàìåòð
+	uart_query->u_service_bit_field.u8_service_bit_field.ParingState = 0; // TODO Ð½ÑƒÐ¶Ð½Ð¾ Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ ÐºÐ°ÐºÐ¸Ð¼ Ð·Ð°Ð´Ð°Ð²Ð°Ñ‚ÑŒ ÑÑ‚Ð¾Ñ‚ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€
 
 	SendUartData( CMD_ID_3230, SendBuf);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3232(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3234(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3132(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3332(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3630(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3632(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3530(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3532(uint32_t ble_cmd_id, uint8_t *data)
 {
-	// TODO ðåàëèçîâàòü
+	// TODO Ñ€ÐµÐ°Ð»Ð¸Ð·Ð¾Ð²Ð°Ñ‚ÑŒ
 	//	SendUartData( (uint8_t *), );
 }
 // ----------------------------------------------------------------------------
@@ -135,37 +135,35 @@ void UART_SetData (uint32_t ble_cmd_id, uint8_t *data)
 	ConvertQuery_3530( ble_cmd_id, data);
 	ConvertQuery_3532( ble_cmd_id, data);
 
-	BleGetDataCallback(ble_cmd_id, data); // TODO òåñò
+	BleGetDataCallback(ble_cmd_id, data); // TODO Ñ‚ÐµÑÑ‚
 }
 // ----------------------------------------------------------------------------
-uint32_t UART_GetData (uint8_t *data) // return ble_cmd_id
+void UART_ErrorCallback(t_protocol_errors error)
 {
-	// TODO òóò äîëæåí áûòü çàïðîñ äàííûõ èç õðàíèëèùà ProtocolDataStructures
-	// èç ýòèõ ñòðóêòóð íóæíî âçÿòü äàííûå, àäàïòèðîâàòü èõ äëÿ BLE è îòïðàâèòü
-//	ResponseData_3231;
-//	ResponseData_3331;
-//	ResponseData_3530;
-//	ResponseData_3531;
+  t_uart_error_evt evt;
+  evt.test = 10;
+  UartErrorHandler(&evt);
 
-	return 0;
 }
 // ----------------------------------------------------------------------------
 void UART_InterfaceInit(i_Interface *interface,
-								uint32_t (*get_time_ms)(void),
-								bool (*uart_get_byte)(uint8_t *data),
-								void (*uart_sent_data)(uint8_t *data, uint8_t size))
+                        uint32_t (*get_time_ms)(void),
+                        bool (*uart_get_byte)(uint8_t *data),
+                        void (*uart_sent_data)(uint8_t *data, uint8_t size))
 {
-	t_protocol prot;
+  t_protocol prot;
 
-	prot.get_time_ms = get_time_ms;
-	prot.uart_get_byte = uart_get_byte;
-	prot.uart_sent_data = uart_sent_data;
+  prot.get_time_ms = get_time_ms;
+  prot.uart_get_byte = uart_get_byte;
+  prot.uart_sent_data = uart_sent_data;
+  prot.uart_errorCallback = UART_ErrorCallback;
 
-	ProtocolInit(&prot);
+  ProtocolInit(&prot);
 
-	interface->uartSendData = UART_SetData;
-	interface->procRun = ProtocolRun;
+  interface->uartSendData = UART_SetData;
+  interface->procRun = ProtocolRun;
 
-	BleGetDataCallback = interface->bleGetDataCallback;
+  BleGetDataCallback = interface->bleGetDataCallback;
+  UartErrorHandler = interface->uartErrorHandler;
 }
 // ----------------------------------------------------------------------------

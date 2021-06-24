@@ -4,35 +4,35 @@
 
 // ----------------------------------------------------------------------------
 
-// экземпляры структур для хранения данных, полученых от UART устройства
+// СЌРєР·РµРјРїР»СЏСЂС‹ СЃС‚СЂСѓРєС‚СѓСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РґР°РЅРЅС‹С…, РїРѕР»СѓС‡РµРЅС‹С… РѕС‚ UART СѓСЃС‚СЂРѕР№СЃС‚РІР°
 t_3231_accept_parameters_response						ResponseData_3231;
 t_3331_receive_information_on_device_response			ResponseData_3331;
 t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
 t_3531_request_indication_and_auto_settings_response	ResponseData_3531;
 
-// элементы списка ответов
+// СЌР»РµРјРµРЅС‚С‹ СЃРїРёСЃРєР° РѕС‚РІРµС‚РѕРІ
 static t_data_list_struct	ResponseListItem_3231;
 static t_data_list_struct	ResponseListItem_3331;
 static t_data_list_struct	ResponseListItem_3530;
 static t_data_list_struct	ResponseListItem_3531;
 
-static t_data_list_struct * ResponsesList; // нециклический список ответов
+static t_data_list_struct * ResponsesList; // РЅРµС†РёРєР»РёС‡РµСЃРєРёР№ СЃРїРёСЃРѕРє РѕС‚РІРµС‚РѕРІ
 // ----------------------------------------------------------------------------
 
-// экземпляры структыр данных запросов
+// СЌРєР·РµРјРїР»СЏСЂС‹ СЃС‚СЂСѓРєС‚С‹СЂ РґР°РЅРЅС‹С… Р·Р°РїСЂРѕСЃРѕРІ
 static t_3230_set_parameters_query							Query_3230;
 static t_3232_request_parameters_query						Query_3232;
 static t_3234_set_parameters_nonvolatile_mem_query			Query_3234;
 static t_3332_request_information_on_device_query			Query_3332;
 static t_3532_request_indication_and_auto_settings_query	Query_3532;
-// элементы списка запросов
+// СЌР»РµРјРµРЅС‚С‹ СЃРїРёСЃРєР° Р·Р°РїСЂРѕСЃРѕРІ
 static t_data_list_struct	QueryListItem_3230;
 static t_data_list_struct	QueryListItem_3232;
 static t_data_list_struct	QueryListItem_3234;
 static t_data_list_struct	QueryListItem_3332;
 static t_data_list_struct	QueryListItem_3532;
 
-static t_data_list_struct * QueryesList; // циклический список запросов
+static t_data_list_struct * QueryesList; // С†РёРєР»РёС‡РµСЃРєРёР№ СЃРїРёСЃРѕРє Р·Р°РїСЂРѕСЃРѕРІ
 
 
 #define SIZE_QUERY_FROM_BLE	50u
@@ -90,7 +90,7 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 	t_data_list_struct *first_list_item = ResponsesList;
 	if(first_list_item == NULL) return;
 
-	while(first_list_item != NULL) // пока не дошли до конца списка
+	while(first_list_item != NULL) // РїРѕРєР° РЅРµ РґРѕС€Р»Рё РґРѕ РєРѕРЅС†Р° СЃРїРёСЃРєР°
 	{
 		if(cmd_id == first_list_item->cmd_id) //
 		{
@@ -102,7 +102,7 @@ void ProtocolDataStructuresParse(uint8_t *data, uint16_t cmd_id)
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
-// записывает структуру данных вместе с CMD_ID, возвращает кол-во записаных байт
+// Р·Р°РїРёСЃС‹РІР°РµС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ РґР°РЅРЅС‹С… РІРјРµСЃС‚Рµ СЃ CMD_ID, РІРѕР·РІСЂР°С‰Р°РµС‚ РєРѕР»-РІРѕ Р·Р°РїРёСЃР°РЅС‹С… Р±Р°Р№С‚
 uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size)
 {
 	uint16_t data_cnt;
@@ -140,7 +140,7 @@ uint16_t ProtocolDataStructuresGetNextRequest(uint8_t *data, uint16_t size)
 	return data_cnt;
 }
 // ----------------------------------------------------------------------------
-// помещает в очередь внешний запрос от BLE устройства
+// РїРѕРјРµС‰Р°РµС‚ РІ РѕС‡РµСЂРµРґСЊ РІРЅРµС€РЅРёР№ Р·Р°РїСЂРѕСЃ РѕС‚ BLE СѓСЃС‚СЂРѕР№СЃС‚РІР°
 void ProtocolDataStructuresSendDataFromBle(uint16_t cmd_id, uint8_t *data_guery)
 {
 	int16_t data_size = ProtocolDataStructuresGetDataSize(cmd_id);
@@ -207,7 +207,7 @@ void ProtocolDataStructuresInit(void)
 	QueryListItem_3532.cmd_id		= CMD_ID_3532;
 	QueryListItem_3532.p_data		= (void*)&Query_3532;
 	QueryListItem_3532.data_size	= DATA_SIZE_3532;
-	QueryListItem_3532.p_next_item	= (void*)&QueryListItem_3230; // здесь ссылаемся на первый элемент, так как это циклический список
+	QueryListItem_3532.p_next_item	= (void*)&QueryListItem_3230; // Р·РґРµСЃСЊ СЃСЃС‹Р»Р°РµРјСЃСЏ РЅР° РїРµСЂРІС‹Р№ СЌР»РµРјРµРЅС‚, С‚Р°Рє РєР°Рє СЌС‚Рѕ С†РёРєР»РёС‡РµСЃРєРёР№ СЃРїРёСЃРѕРє
 
 	QueryesList = &QueryListItem_3230;
 }

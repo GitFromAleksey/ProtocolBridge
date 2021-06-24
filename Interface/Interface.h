@@ -6,7 +6,7 @@
 
 typedef struct
 {
-
+  uint8_t test;
 } t_uart_error_evt;
 
 typedef struct

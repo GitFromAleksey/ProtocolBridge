@@ -6,18 +6,102 @@ import serial.tools.list_ports
 
 JLINK_PORT_DESCRIBE = 'JLink'
 
-def CountFilesInSubdirs(path):
-    counter = int()
-    for root, dirs, files in os.walk(path):
-##    print('root:', root)
-##    print('dirs:', dirs)
-##    print('files:', files)
-        counter += 1;
-    print('counter =', counter)
+HEAD = 0x23
 
+CMD_ID_QUERY_DIC = {
+    0x3230 : 't_3230_set_parameters_query',
+    0x3232 : 't_3232_request_parameters_query',
+    0x3234 : 't_3234_set_parameters_nonvolatile_mem_query',
+    0x3332 : 't_3332_request_information_on_device_query',
+    0x3532 : 't_3532_request_indication_and_auto_settings_query'
+    }
+
+CMD_ID_REQ_DIC = {
+    0x3231 : 't_3231_accept_parameters_response',
+    0x3331 : 't_3331_receive_information_on_device_response',
+    0x3530 : 't_3530_set_indication_and_auto_settings_response',
+    0x3531 : 't_3531_request_indication_and_auto_settings_response'
+    }
+
+## длины структур данных ответов
+CMD_LEN_REQ_DIC = {
+    0x3231 : 32,
+    0x3331 : 10,
+    0x3530 : 44,
+    0x3531 : 44
+    }
+
+## соответствия запросов и ответов
+CMD_REQ_FOR_QUERY = {
+    0x3230 : 0x3231,
+    0x3232 : 0x3530,
+    0x3234 : 0x3530,
+    0x3332 : 0x3331,
+    0x3532 : 0x3531
+    }
+
+
+## -----------------------------------------------------------------------------
+def PrintBytes(raw_bytes_arr):
+    b_str = str()
+##    print(type(raw_bytes_arr))
+    for b in raw_bytes_arr:
+        b_str += ("{:02x}".format(b))
+        b_str += ":"
+    print('bytes len:', len(raw_bytes_arr))
+    print(b_str)
+## -----------------------------------------------------------------------------
+def CrcXorCalk(raw_bytes_arr):
+    PrintBytes(raw_bytes_arr)
+    usStartValue = 0xFF;
+    for b in raw_bytes_arr:
+        usStartValue = usStartValue ^ b
+    return usStartValue;
+## -----------------------------------------------------------------------------
+def RequestMake(cmd_id_query):
+    data_list = list()
+    print("cmd_id_query: {:02x}".format(cmd_id_query))
+    cmd_id_req = CMD_REQ_FOR_QUERY[cmd_id_query]
+    print("cmd_id_req: {:02x}".format(cmd_id_req))
+    req_len = CMD_LEN_REQ_DIC[cmd_id_req] + 3
+    print("req_len: ", req_len)
+    for i in range(req_len):
+        data_list.append(i)
+    data_list[0] = HEAD
+    data_list[1] = cmd_id_req & 0xFF
+    data_list[2] = (cmd_id_req>>8) & 0xFF
+    
+    bs = bytes(data_list)
+
+    crc = CrcXorCalk(bs[0 : len(bs)-1])
+    data_list[len(bs)-1] = crc
+
+    bs = bytes(data_list)
+
+    PrintBytes(bs)
+    
+    return bs
+## -----------------------------------------------------------------------------
+def CmdIdCheck(raw_bytes_arr):
+    cmd_id = int.from_bytes(raw_bytes_arr[1:3], byteorder = 'little')
+    print('cmd_id = {:02X} -'.format(cmd_id), CMD_ID_QUERY_DIC[cmd_id])
+    crc = raw_bytes_arr[len(raw_bytes_arr)-1]
+    if crc == CrcXorCalk(raw_bytes_arr[0:len(raw_bytes_arr)-1]):
+        print('crc - ok')
+        return RequestMake(cmd_id)
+## -----------------------------------------------------------------------------
+def RawDataParser(raw_bytes_arr):
+    head = raw_bytes_arr[0]
+    print()
+    PrintBytes(raw_bytes_arr)
+    if HEAD == head:
+        return CmdIdCheck(raw_bytes_arr)
+    else:
+        print('unknown data!!!')
+## -----------------------------------------------------------------------------
 
 def main():
-##    CountFilesInSubdirs(os.getcwd())
+
     jLink_port = ''
     ports_dict = {}
 
@@ -48,14 +132,11 @@ def main():
     cnt = 0
 
     while True:
-        s = ser.readline()
-        if len(s):
-            print(s)
-            print( ":".join("{:02x}".format(c) for c in s) )
-##            time.sleep(1)
-##            ret = 'TX from python!' + str(cnt) + '\n'
-##            cnt += 1
-##            ser.write(ret.encode())
+        rx_bytes = ser.readline()
+        if len(rx_bytes):
+            bts = RawDataParser(rx_bytes)
+            PrintBytes(bts)
+            ser.write(bts)
 
     pass
 

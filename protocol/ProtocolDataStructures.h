@@ -44,6 +44,7 @@ typedef struct
 	uint8_t reserved	: 7;
 } t_3231_uint8_service_bit_field;
 
+#pragma pack(push, 1)
 typedef struct
 {
 	t_3231_uint16_status_bit_field u16_status_bit_fld;
@@ -62,10 +63,11 @@ typedef struct
 
 	t_3231_uint8_service_bit_field u8_service_bit_fld;
 } t_3231_accept_parameters_response;
+#pragma pack(pop)
 
 #define DATA_SIZE_3231	(uint16_t)(sizeof(t_3231_accept_parameters_response))
 // ---------------------------------------------------------------------
-//#pragma pack(push, 1)
+#pragma pack(push, 1)
 typedef struct
 {
 	uint16_t PM2_5_value_for_Red_indication;
@@ -91,10 +93,11 @@ typedef struct
 	uint16_t VOC_level_for_5_speed;
 	uint16_t VOC_level_for_6_speed;
 } t_3531_request_indication_and_auto_settings_response; // Request indication and Auto settings
-//#pragma pack(pop)
+#pragma pack(pop)
 
 #define DATA_SIZE_3531	(uint16_t)(sizeof(t_3531_request_indication_and_auto_settings_response))
 // ---------------------------------------------------------------------
+#pragma pack(push, 1)
 typedef struct
 {
 	int8_t ModeOfOperation;		// 1 – main application operating;
@@ -104,9 +107,11 @@ typedef struct
 	int16_t BoardVersion;		// 0x0000 .. 0xFFFF
 	int8_t ReserveArray[16];	//
 } t_3331_receive_information_on_device_response; // Receive information on device
+#pragma pack(pop)
 
 #define DATA_SIZE_3331	(uint16_t)(sizeof(t_3331_receive_information_on_device_response))
 // ---------------------------------------------------------------------
+#pragma pack(push, 1)
 typedef struct
 {
 	uint16_t PM2_5_value_for_Red_indication;
@@ -132,6 +137,7 @@ typedef struct
 	uint16_t VOC_level_for_5_speed;
 	uint16_t VOC_level_for_6_speed;
 } t_3530_set_indication_and_auto_settings_response; // Set indication and Auto settings
+#pragma pack(pop)
 
 #define DATA_SIZE_3530	(uint16_t)(sizeof(t_3530_set_indication_and_auto_settings_response))
 
@@ -171,7 +177,7 @@ typedef struct
 	{
 		uint16_t u16_status_word;
 		t_3230_uint16_status_bit_field u16_status_bit_fld;
-	};
+	} u_status_bit_field;
 
 	int8_t FunSpeed;
 	int8_t SleepTimerSettings;
@@ -182,7 +188,7 @@ typedef struct
 	{
 		uint8_t u8_service_byte;
 		t_3230_uint8_service_bit_field u8_service_bit_field;
-	};
+	} u_service_bit_field;
 } t_3230_set_parameters_query; // "Set parameters" command.  After the command has been sent a Response command of "Accept parameters" must be received
 #pragma pack(pop)
 
@@ -190,31 +196,31 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
-	// null data
+	void *p_void; // пустые данные для того, чтобы компилятор не ругался
 } t_3232_request_parameters_query;
 
-#define DATA_SIZE_3232	(uint16_t)(sizeof(t_3232_request_parameters_query))
+#define DATA_SIZE_3232	0//(uint16_t)(sizeof(t_3232_request_parameters_query))
 // ---------------------------------------------------------------------
 typedef struct
 {
-	// null data
+	void *p_void; // пустые данные для того, чтобы компилятор не ругался
 } t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
 
-#define DATA_SIZE_3234	(uint16_t)(sizeof(t_3234_set_parameters_nonvolatile_mem_query))
+#define DATA_SIZE_3234	0 //(uint16_t)(sizeof(t_3234_set_parameters_nonvolatile_mem_query))
 // ---------------------------------------------------------------------
 typedef struct // 23 32 33 DD
 {
-	// null data
+	void *p_void; // пустые данные для того, чтобы компилятор не ругался
 } t_3332_request_information_on_device_query; // Request information on device
 
-#define DATA_SIZE_3332	(uint16_t)(sizeof(t_3332_request_information_on_device_query))
+#define DATA_SIZE_3332	0//(uint16_t)(sizeof(t_3332_request_information_on_device_query))
 // ---------------------------------------------------------------------
 typedef struct
 {
-	// null data
+	void *p_void; // пустые данные для того, чтобы компилятор не ругался
 } t_3532_request_indication_and_auto_settings_query;
 
-#define DATA_SIZE_3532	(uint16_t)(sizeof(t_3532_request_indication_and_auto_settings_query))
+#define DATA_SIZE_3532	0 //(uint16_t)(sizeof(t_3532_request_indication_and_auto_settings_query))
 // ---------------------------------------------------------------------
 
 typedef struct // эта структура для создания списка экземпляров структур данных
