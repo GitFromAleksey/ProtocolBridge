@@ -79,12 +79,12 @@ static bool ProtocolStructureFind(t_protocol *prot)
 			data_size += sizeof(p_uart_packet->cmd_id) +
 							sizeof(p_uart_packet->header);
 
-			if( prot->rx_buf_cnt == data_size ) // длина принятых данных совпадает с вычисленной длиной
+			if( prot->rx_buf_cnt == data_size+1 ) // длина принятых данных совпадает с вычисленной длиной
 			{
-				crc = ((uint8_t*)p_uart_packet)[data_size-1];
+				crc = ((uint8_t*)p_uart_packet)[data_size];
 
 				// рассчёт crc
-				if(crc == ProtocolCrcXorCalk(&p_uart_packet->header, data_size-1))
+				if(crc == ProtocolCrcXorCalk(&p_uart_packet->header, data_size))
 				{
           UART_Protocol.lost_data_counter = 0;
 					// так как crc в порядке, то отправляем для разбора структуры принятых данных

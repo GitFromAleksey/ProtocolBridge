@@ -8,7 +8,7 @@
 typedef enum // TODO cmd_id для удобства нужно разделить на два энума для query и request
 {
 	CMD_ID_3230 = (uint16_t)0x3230,
-	CMD_ID_3231 = (uint16_t)0x3231,
+	CMD_ID_3231 = (uint16_t)0x3132, // в документации 0x3231, но по факту 0x3132
 	CMD_ID_3232 = (uint16_t)0x3232,
 	CMD_ID_3234 = (uint16_t)0x3234,
 	CMD_ID_3332 = (uint16_t)0x3332,
