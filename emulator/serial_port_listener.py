@@ -10,8 +10,9 @@ LOG_FILE_EXT = '.txt'
 
 JLINK_PORT_DESCRIBE = 'JLink'
 
-HEAD = 0x23
+HEAD = 0x23 # заголовок UART пакета
 
+## CMD_ID запросов
 CMD_ID_QUERY_DIC = {
     0x3230 : 't_3230_set_parameters_query',
     0x3232 : 't_3232_request_parameters_query',
@@ -19,7 +20,7 @@ CMD_ID_QUERY_DIC = {
     0x3332 : 't_3332_request_information_on_device_query',
     0x3532 : 't_3532_request_indication_and_auto_settings_query'
     }
-
+## CMD_ID ответов
 CMD_ID_REQ_DIC = {
     0x3132 : 't_3231_accept_parameters_response',
     0x3331 : 't_3331_receive_information_on_device_response',

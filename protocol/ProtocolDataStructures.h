@@ -47,7 +47,11 @@ typedef struct
 #pragma pack(push, 1)
 typedef struct
 {
-	t_3231_uint16_status_bit_field u16_status_bit_fld;
+	union
+	{
+		uint16_t                        u16_status_word;
+		t_3231_uint16_status_bit_field  u16_status_bit_fld;
+	} u_status_bit_field;
 
 	int8_t MaximumNumbersOfSpeeds;
 	int8_t FanSpeed;
