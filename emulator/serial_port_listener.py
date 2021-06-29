@@ -4,6 +4,8 @@ import datetime
 import serial
 import serial.tools.list_ports
 import random
+from struct import *
+from collections import namedtuple
 
 LOG_FILE_NAME = 'log_'
 LOG_FILE_EXT = '.txt'
@@ -54,6 +56,7 @@ def LogToFile(data):
     f = open(f_name, 'a')
     f.write(log_string)
     f.close()
+    pass
 ## -----------------------------------------------------------------------------
 def PrintBytes(raw_bytes_arr):
     b_str = str()
@@ -69,6 +72,44 @@ def CrcXorCalk(raw_bytes_arr):
         usStartValue = usStartValue ^ b
     return usStartValue;
 ## -----------------------------------------------------------------------------
+def Make_3231():
+    packed_format = '<HBBBHHIIIIHIBB' # 32
+    print('packed_format size: ', calcsize(packed_format), 'bytes')
+
+    t_3231_status_bit_field = 0x7FFF
+    
+    t_3231_MaximumNumbersOfSpeeds = 6
+    t_3231_FanSpeed = 5
+    t_3231_SleepTimerCurrentValue = 11
+    t_3231_PM2_5_CurrentValue = 0x2222
+    t_3231_VOC_CurrentValues = 0x3333
+    t_3231_HardwareRunningTimeCounter = 0x44444444
+    t_3231_FanRunningTimeCounter = 0x55555555
+    t_3231_FilterRunningTimeCounter = 0x66666666
+    t_3231_AntibacterialLayerTimeCounter = 0x77777777
+    t_3231_FilterCCM = 0x8888
+    t_3231_ErrorBitField = 0x99999999
+    u8_service_bit_fld = 0x01 # pairing
+    crc = 0
+
+    pack_data = pack(packed_format,
+                     t_3231_status_bit_field,
+                     t_3231_MaximumNumbersOfSpeeds,
+                     t_3231_FanSpeed,
+                     t_3231_SleepTimerCurrentValue,
+                     t_3231_PM2_5_CurrentValue,
+                     t_3231_VOC_CurrentValues,
+                     t_3231_HardwareRunningTimeCounter,
+                     t_3231_FanRunningTimeCounter,
+                     t_3231_FilterRunningTimeCounter,
+                     t_3231_AntibacterialLayerTimeCounter,
+                     t_3231_FilterCCM,
+                     t_3231_ErrorBitField,
+                     u8_service_bit_fld,
+                     crc
+                     )
+    return pack_data
+## -----------------------------------------------------------------------------
 def RequestMake(cmd_id_query):
     data_list = list()
     LogToFile("cmd_id_query: {:02x}".format(cmd_id_query))
@@ -76,16 +117,26 @@ def RequestMake(cmd_id_query):
     LogToFile("cmd_id_req: {:02x}".format(cmd_id_req))
     req_len = CMD_LEN_REQ_DIC[cmd_id_req] + 3
     LogToFile("req_len: " + str(req_len))
-    for i in range(req_len):
-        b = random.randint(0,255)
-        data_list.append(b)
-    data_list[0] = HEAD
-    data_list[1] = cmd_id_req & 0xFF
-    data_list[2] = (cmd_id_req>>8) & 0xFF
+
+    data_list = []
+    data_list.append(HEAD)
+    data_list.append(cmd_id_req & 0xFF)
+    data_list.append((cmd_id_req>>8) & 0xFF)
 
     if cmd_id_req == 0x3132:
-##        data_list[2+3] = 0x6
-        data_list[len(data_list)-2] = 0x0;
+##    if cmd_id_req == -1:
+        data = Make_3231()
+        for d in data:
+            data_list.append(d)
+    else:
+        for i in range(req_len-3):
+            b = random.randint(0,255)
+            data_list.append(b)
+
+##    if cmd_id_req == 0x3331:
+##    if cmd_id_req == 0x3132: # pairing
+####        data_list[2+3] = 0x6
+##        data_list[len(data_list)-2] = 0x0;
     
     bs = bytes(data_list)
 
@@ -100,7 +151,7 @@ def RequestMake(cmd_id_query):
 ## -----------------------------------------------------------------------------
 def CmdIdCheck(raw_bytes_arr):
     cmd_id = int.from_bytes(raw_bytes_arr[1:3], byteorder = 'little')
-    LogToFile('cmd_id = {:02X} -'.format(cmd_id) + str(CMD_ID_QUERY_DIC[cmd_id]))
+##    LogToFile('cmd_id = {:02X} -'.format(cmd_id) + str(CMD_ID_QUERY_DIC[cmd_id]))
     crc = raw_bytes_arr[len(raw_bytes_arr)-1]
     if crc == CrcXorCalk(raw_bytes_arr[0:len(raw_bytes_arr)-1]):
         LogToFile('crc - ok')

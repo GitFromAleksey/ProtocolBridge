@@ -24,7 +24,13 @@ print('type(unpack:', type(unpack('<10sHHb', record)))
 
 print(name, serialnum, school, gradelevel)
 
-Student = namedtuple('Student', 'name serialnum school gradelevel')
+student_keys = 'name'
+student_keys += ' ' + 'serialnum'
+student_keys += ' ' + 'school'
+student_keys += ' ' + 'gradelevel'
+
+Student = namedtuple('Student', student_keys)
+##Student = namedtuple('Student', 'name serialnum school gradelevel')
 student_tuple = Student._make(unpack('<10sHHb', record))
 
 print('type(student_tuple): ', type(student_tuple))
