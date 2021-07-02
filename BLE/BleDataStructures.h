@@ -233,6 +233,13 @@ typedef struct
 } t_3531_ble_request_indication_and_auto_settings_response;
 #pragma pack(pop)
 // ---------------------------------------------------------------------
-
+// структура для ответа для BLE
+#pragma pack(push, 1)
+typedef struct
+{
+  uint32_t response_cmd_id; // идентификатор пакета, присланный в запросе от BLE(пока не используется)
+  uint8_t data; // указатель на структуру данных ответа для BLE
+} t_BleAnsver;
+#pragma pack(pop)
 
 #endif /* BLE_BLEDATASTRUCTURES_H_ */

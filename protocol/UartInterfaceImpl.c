@@ -1,86 +1,129 @@
 #include <string.h>
-#include "UartInterfaceImpl.h"
-#include "protocol.h"
-#include "ProtocolDataStructures.h"
-#include "../BLE/BleDataStructures.h"
+#include "protocol\UartInterfaceImpl.h"
+#include "protocol\protocol.h"
+#include "protocol\ProtocolDataStructures.h"
+#include "BleDataStructures.h"
 
 
 // реализаци¤ интерфейса Interface.h
 #define SEND_BUF_SIZE   1050u //
 static uint8_t SendBuf[SEND_BUF_SIZE];
 
-static void (*BleGetDataCallback)	(uint32_t ble_cmd_id, uint8_t *data);
-static void (*UartErrorHandler)(t_uart_error_evt *evt);
+static i_Interface *m_Interface;
+static t_protocol UART_Protocol;
+
 
 // ----------------------------------------------------------------------------
 void SendUartData(uint16_t cmd_id, uint8_t *data_guery)
 {
-	ProtocolDataStructuresSendDataFromBle(cmd_id, data_guery);
+  ProtocolDataStructuresSendDataFromBle(cmd_id, data_guery);
 }
 // ----------------------------------------------------------------------------
-void MakeResponse_3231(uint8_t *data)
+void SendEventBleData(uint32_t ble_cmd_id, uint8_t *data, uint16_t size) // TODO планируется взамен BleSendAnsverCallback
 {
-// формирование ответа 3231 для BLE 
-  t_3231_ble_accept_parameters_command_response *ble_response =
-    (t_3231_ble_accept_parameters_command_response *)data;
-
-// поля одинаковые, поэетому просто копируем
-  memcpy(ble_response, &ResponseData_3231, 
-          sizeof(t_3231_ble_accept_parameters_command_response));
+  t_uart_error_evt evt;
+  
+  evt.evt_id = EVT_DATA;
+  evt.cmd_id = ble_cmd_id;
+  evt.data = data;
+  evt.data_size = size;
+  
+  m_Interface->uartErrorHandler(&evt);
+} 
+// ----------------------------------------------------------------------------
+uint16_t MakeResponse(uint8_t *buf, uint32_t response_cmd_id, uint8_t *data,
+                      uint16_t data_size)
+{
+  t_BleAnsver *ble_ansver = (t_BleAnsver *)buf;
+  
+  ble_ansver->response_cmd_id = response_cmd_id;
+  
+  memcpy(&ble_ansver->data, data, data_size);
+  
+  return (data_size + sizeof(ble_ansver->response_cmd_id));
+}
+// ----------------------------------------------------------------------------
+uint16_t MakeResponse_3231(uint8_t *buf)
+{
+  return MakeResponse(buf, 0, (uint8_t*)&ResponseData_3231,
+                      sizeof(t_3231_ble_accept_parameters_command_response));
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3230(uint32_t ble_cmd_id, uint8_t *data)
 {
-	if(CMD_ID_BLE_QUERY_3230 != ble_cmd_id)
-		return;
+  if(CMD_ID_BLE_QUERY_3230 != ble_cmd_id)
+          return;
 
-	uint8_t tmp;
-	t_3230_ble_set_parameters_query *ble_query = (t_3230_ble_set_parameters_query*)data;
-	t_3230_set_parameters_query *uart_query = (t_3230_set_parameters_query *)SendBuf;
+  uint8_t tmp;
+  t_3230_ble_set_parameters_query *ble_query = 
+                                        (t_3230_ble_set_parameters_query*)data;
+  t_3230_set_parameters_query *uart_query = 
+                                         (t_3230_set_parameters_query *)SendBuf;
+  
+  //memcpy(uart_query, ble_query, DATA_SIZE_3230);
+  memcpy(uart_query, ble_query, sizeof(t_3230_ble_set_parameters_query));
 
-	memcpy(uart_query, ble_query, DATA_SIZE_3230);
+//	union
+//	{
+//		uint16_t u16_status_word;
+//		t_3230_uint16_status_bit_field u16_status_bit_fld;
+//	} u_status_bit_field;
+//
+//	int8_t FunSpeed;
+//	int8_t SleepTimerSettings;
+//	uint16_t TimeLeftToReplaceFilter;
+//	uint16_t TimeLaftToAntibacterialLayerExpire;
+//
+//	union
+//	{
+//		uint8_t u8_service_byte;
+//		t_3230_uint8_service_bit_field u8_service_bit_field;
+//	} u_service_bit_field;
+        
+//	switch(ble_query->u16_status_bit_fld.OperationOfLightIndication)
+//	{
+//		case 0: // 00 - off
+//			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 1;
+//			break;
+//		case 1: // 01 Ц lower limit;
+//			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 0;
+//			break;
+//		case 2: // 10 Ц medium
+//			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 2;
+//			break;
+//		case 3: // 11 Ц maximum
+//			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 3;
+//			break;
+//		default:
+//			break;
+//	}
 
-	switch(ble_query->u16_status_bit_fld.OperationOfLightIndication)
-	{
-		case 0: // 00 - off
-			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 1;
-			break;
-		case 1: // 01 Ц lower limit;
-			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 0;
-			break;
-		case 2: // 10 Ц medium
-			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 2;
-			break;
-		case 3: // 11 Ц maximum
-			uart_query->u_status_bit_field.u16_status_bit_fld.OperationOfLightIndication = 3;
-			break;
-		default:
-			break;
-	}
+//	tmp = 100/6;
 
-	tmp = 100/6;
+//	if(ble_query->FunSpeed < tmp)
+//		uart_query->FunSpeed = 0;
+//	else if( (ble_query->FunSpeed >= tmp) && (ble_query->FunSpeed < (2*tmp)) )
+//		uart_query->FunSpeed = 1;
+//	else if( (ble_query->FunSpeed >= (2*tmp)) && (ble_query->FunSpeed < (3*tmp)) )
+//		uart_query->FunSpeed = 2;
+//	else if( (ble_query->FunSpeed >= (3*tmp)) && (ble_query->FunSpeed < (4*tmp)) )
+//		uart_query->FunSpeed = 3;
+//	else if( (ble_query->FunSpeed >= (4*tmp)) && (ble_query->FunSpeed < (5*tmp)) )
+//		uart_query->FunSpeed = 4;
+//	else if( (ble_query->FunSpeed >= (5*tmp)) && (ble_query->FunSpeed < (6*tmp)) )
+//		uart_query->FunSpeed = 5;
+//	else if( ble_query->FunSpeed >= (6*tmp) )
+//		uart_query->FunSpeed = 6;
 
-	if(ble_query->FunSpeed < tmp)
-		uart_query->FunSpeed = 0;
-	else if( (ble_query->FunSpeed >= tmp) && (ble_query->FunSpeed < (2*tmp)) )
-		uart_query->FunSpeed = 1;
-	else if( (ble_query->FunSpeed >= (2*tmp)) && (ble_query->FunSpeed < (3*tmp)) )
-		uart_query->FunSpeed = 2;
-	else if( (ble_query->FunSpeed >= (3*tmp)) && (ble_query->FunSpeed < (4*tmp)) )
-		uart_query->FunSpeed = 3;
-	else if( (ble_query->FunSpeed >= (4*tmp)) && (ble_query->FunSpeed < (5*tmp)) )
-		uart_query->FunSpeed = 4;
-	else if( (ble_query->FunSpeed >= (5*tmp)) && (ble_query->FunSpeed < (6*tmp)) )
-		uart_query->FunSpeed = 5;
-	else if( ble_query->FunSpeed >= (6*tmp) )
-		uart_query->FunSpeed = 6;
+//	uart_query->u_service_bit_field.u8_service_bit_field.ParingState = 0; // TODO нужно решить каким задавать этот параметр
 
-	uart_query->u_service_bit_field.u8_service_bit_field.ParingState = 0; // TODO нужно решить каким задавать этот параметр
-
-	SendUartData( CMD_ID_3230, SendBuf);
-
-  MakeResponse_3231(SendBuf);
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3231, SendBuf); // TODO реализовать ответ для BLE в его формате
+//        t_3234_set_parameters_nonvolatile_mem_query *_3234 = 
+//          (t_3234_set_parameters_nonvolatile_mem_query *)uart_query;
+          
+  SendUartData( CMD_ID_3234, SendBuf);
+        
+  uint16_t data_len = MakeResponse_3231(SendBuf);
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3231, SendBuf, data_len);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3232(uint32_t ble_cmd_id, uint8_t *data)
@@ -88,15 +131,8 @@ static void ConvertQuery_3232(uint32_t ble_cmd_id, uint8_t *data)
   if(CMD_ID_BLE_QUERY_3232 != ble_cmd_id)
     return;
 
-//  t_3232_ble_request_parameters_query *ble_query =
-//    (t_3232_ble_request_parameters_query*)data;
-//  t_3232_request_parameters_query *uart_query =
-//    (t_3232_request_parameters_query *)SendBuf;
-
-  SendUartData( CMD_ID_3232, NULL);
-
-  MakeResponse_3231(SendBuf);
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3231, SendBuf);
+  uint16_t data_len = MakeResponse_3231(SendBuf);
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3231, SendBuf, data_len);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3234(uint32_t ble_cmd_id, uint8_t *data)
@@ -104,15 +140,10 @@ static void ConvertQuery_3234(uint32_t ble_cmd_id, uint8_t *data)
   if(CMD_ID_BLE_QUERY_3234 != ble_cmd_id)
     return;
 
-//  t_3234_ble_set_parameters_nonvolatile_mem_query *ble_query =
-//    (t_3234_ble_set_parameters_nonvolatile_mem_query*)data;
-//  t_3234_set_parameters_nonvolatile_mem_query *uart_query =
-//    (t_3234_set_parameters_nonvolatile_mem_query *)SendBuf;
-
   SendUartData( CMD_ID_3232, NULL);
 
-  MakeResponse_3231(SendBuf);
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3231, SendBuf);
+  uint16_t data_len = MakeResponse_3231(SendBuf);
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3231, SendBuf, data_len);
 }
 // ----------------------------------------------------------------------------
 // это тестовый запрос. По UART посылать ничего не надо. Нужно только ответить BLE
@@ -121,9 +152,6 @@ static void ConvertQuery_3132(uint32_t ble_cmd_id, uint8_t *data)
   if(CMD_ID_BLE_QUERY_3132 != ble_cmd_id)
     return;
 
-//  t_3132_ble_test_query *ble_query =
-//    (t_3132_ble_test_query*)data; // пустые данные
-
   t_3131_ble_test_response* ble_response = (t_3131_ble_test_response* )SendBuf;
   
   for(int i = 0; i < 1024; ++i)
@@ -131,21 +159,16 @@ static void ConvertQuery_3132(uint32_t ble_cmd_id, uint8_t *data)
     ble_response->RandomeData[i] = i;
   }
 
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3131, SendBuf);
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)ble_response, 
+                               sizeof(t_3131_ble_test_response));
+  
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3131, SendBuf, size);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3332(uint32_t ble_cmd_id, uint8_t *data)
 {
   if(CMD_ID_BLE_QUERY_3332 != ble_cmd_id)
     return;
-
-//  t_3332_ble_request_information_on_device_query *ble_query =
-//    (t_3332_ble_request_information_on_device_query*)data;
-//    
-//  t_3234_set_parameters_nonvolatile_mem_query *uart_query =
-//    (t_3234_set_parameters_nonvolatile_mem_query *)SendBuf;
-
-  SendUartData( CMD_ID_3232, NULL);
 
   t_3331_ble_receive_information_on_device_response * ble_response = 
     (t_3331_ble_receive_information_on_device_response *) SendBuf;
@@ -154,7 +177,10 @@ static void ConvertQuery_3332(uint32_t ble_cmd_id, uint8_t *data)
   memcpy(ble_response, &ResponseData_3331, 
           sizeof(t_3331_ble_receive_information_on_device_response));
 
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3331, SendBuf);
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)ble_response, 
+                     sizeof(t_3331_ble_receive_information_on_device_response));
+
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3331, SendBuf, size);  
 }
 // ----------------------------------------------------------------------------
 // тут ничего отсылать и отвечат не надо вроде
@@ -171,23 +197,26 @@ static void ConvertQuery_3630(uint32_t ble_cmd_id, uint8_t *data)
 
   ble_response->DeviceTime = ble_query->device_time;
 
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3631, SendBuf);
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)ble_response, 
+                               sizeof(t_3631_ble__response));
+
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3631, SendBuf, size);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3632(uint32_t ble_cmd_id, uint8_t *data)
 {
   if(CMD_ID_BLE_QUERY_3632 != ble_cmd_id)
     return;
-
-//  t_3632_ble_request_device_time_query *ble_query =
-//    (t_3632_ble_request_device_time_query*)data; // тут дата пустая
     
   t_3631_ble__response *ble_response =
     (t_3631_ble__response *)SendBuf;
 
   ble_response->DeviceTime = 0;
 
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3631, SendBuf);
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)ble_response, 
+                               sizeof(t_3631_ble__response));
+
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3631, SendBuf, size);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3530(uint32_t ble_cmd_id, uint8_t *data)
@@ -209,7 +238,10 @@ static void ConvertQuery_3530(uint32_t ble_cmd_id, uint8_t *data)
 // тут просто копируем принятые байты обратно в ответ
   memcpy(ble_response, uart_query, sizeof(t_3631_ble__response));
 
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3531, SendBuf);
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)ble_response, 
+                               sizeof(t_3631_ble__response));
+
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3631, SendBuf, size);
 }
 // ----------------------------------------------------------------------------
 static void ConvertQuery_3532(uint32_t ble_cmd_id, uint8_t *data)
@@ -217,20 +249,13 @@ static void ConvertQuery_3532(uint32_t ble_cmd_id, uint8_t *data)
   if(CMD_ID_BLE_QUERY_3532 != ble_cmd_id)
     return;
 
-//  data // пустая
+  uint16_t size = MakeResponse(SendBuf, 0, (uint8_t*)&ResponseData_3531, 
+              sizeof(t_3531_ble_request_indication_and_auto_settings_response));
   
-  SendUartData( CMD_ID_3532, SendBuf);
-
-  t_3531_ble_request_indication_and_auto_settings_response *ble_request = 
-  (t_3531_ble_request_indication_and_auto_settings_response *)SendBuf;
-
-// просто копируем хранящиеся данные в ответ для BLE так как структуры одинаковые
-  memcpy(ble_request, &ResponseData_3531, DATA_SIZE_3531);
-
-  BleGetDataCallback(CMD_ID_BLE_RESPONSE_3531, SendBuf); // TODO возможно ответ должен быть такой
+  SendEventBleData(CMD_ID_BLE_RESPONSE_3631, SendBuf, size);    
 }
 // ----------------------------------------------------------------------------
-void UART_SetData (uint32_t ble_cmd_id, uint8_t *data)
+void UART_SendData (uint32_t ble_cmd_id, uint8_t *data)
 {
 	ConvertQuery_3230( ble_cmd_id, data);
 	ConvertQuery_3232( ble_cmd_id, data);
@@ -241,16 +266,33 @@ void UART_SetData (uint32_t ble_cmd_id, uint8_t *data)
 	ConvertQuery_3632( ble_cmd_id, data);
 	ConvertQuery_3530( ble_cmd_id, data);
 	ConvertQuery_3532( ble_cmd_id, data);
-
-	BleGetDataCallback(ble_cmd_id, data); // TODO тест
 }
 // ----------------------------------------------------------------------------
 void UART_ErrorCallback(t_protocol_errors error)
 {
   t_uart_error_evt evt;
-  evt.test = 10;
-  UartErrorHandler(&evt);
 
+  evt.cmd_id = EVT_ERROR;
+  
+  m_Interface->uartErrorHandler(&evt);
+}
+// ----------------------------------------------------------------------------
+void UART_Run(void)
+{
+  static uint8_t pair = 0;
+  
+  if(pair != ResponseData_3231.u_service_bit_fld.u8_service_bit_fld.Pairing)
+  {
+    if(pair == 0)
+    {
+      t_uart_error_evt evt;
+      evt.evt_id = EVT_PAIRING;
+      m_Interface->uartErrorHandler(&evt);
+    }
+    pair = ResponseData_3231.u_service_bit_fld.u8_service_bit_fld.Pairing;
+  }
+  
+  ProtocolRun(&UART_Protocol);
 }
 // ----------------------------------------------------------------------------
 void UART_InterfaceInit(i_Interface *interface,
@@ -258,19 +300,18 @@ void UART_InterfaceInit(i_Interface *interface,
                         bool (*uart_get_byte)(uint8_t *data),
                         void (*uart_sent_data)(uint8_t *data, uint8_t size))
 {
-  t_protocol prot;
+  t_protocol init;
 
-  prot.get_time_ms = get_time_ms;
-  prot.uart_get_byte = uart_get_byte;
-  prot.uart_sent_data = uart_sent_data;
-  prot.uart_errorCallback = UART_ErrorCallback;
+  init.get_time_ms = get_time_ms;
+  init.uart_get_byte = uart_get_byte;
+  init.uart_sent_data = uart_sent_data;
+  init.uart_errorCallback = UART_ErrorCallback;
 
-  ProtocolInit(&prot);
+  ProtocolInit(&UART_Protocol, &init);
 
-  interface->uartSendData = UART_SetData;
-  interface->procRun = ProtocolRun;
+  interface->uartSendData = UART_SendData;
+  interface->procRun = UART_Run;
 
-  BleGetDataCallback = interface->bleGetDataCallback;
-  UartErrorHandler = interface->uartErrorHandler;
+  m_Interface = interface;
 }
 // ----------------------------------------------------------------------------

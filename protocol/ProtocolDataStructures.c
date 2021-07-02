@@ -5,9 +5,9 @@
 // ----------------------------------------------------------------------------
 
 // экземпляры структур для хранения данных, полученых от UART устройства
-t_3231_accept_parameters_response						ResponseData_3231;
-t_3331_receive_information_on_device_response			ResponseData_3331;
-t_3530_set_indication_and_auto_settings_response		ResponseData_3530;
+t_3231_accept_parameters_response			ResponseData_3231;
+t_3331_receive_information_on_device_response		ResponseData_3331;
+t_3530_set_indication_and_auto_settings_response	ResponseData_3530;
 t_3531_request_indication_and_auto_settings_response	ResponseData_3531;
 
 // элементы списка ответов
@@ -20,10 +20,10 @@ static t_data_list_struct * ResponsesList; // нециклический спи�
 // ----------------------------------------------------------------------------
 
 // экземпляры структыр данных запросов
-static t_3230_set_parameters_query							Query_3230;
-static t_3232_request_parameters_query						Query_3232;
-static t_3234_set_parameters_nonvolatile_mem_query			Query_3234;
-static t_3332_request_information_on_device_query			Query_3332;
+static t_3230_set_parameters_query				Query_3230;
+static t_3232_request_parameters_query				Query_3232;
+static t_3234_set_parameters_nonvolatile_mem_query		Query_3234;
+static t_3332_request_information_on_device_query		Query_3332;
 static t_3532_request_indication_and_auto_settings_query	Query_3532;
 // элементы списка запросов
 static t_data_list_struct	QueryListItem_3230;
@@ -184,31 +184,33 @@ void ProtocolDataStructuresInit(void)
 
 	// ------------------------------------------------------------
 
-	QueryListItem_3230.cmd_id		= CMD_ID_3230;
-	QueryListItem_3230.p_data		= (void*)&Query_3230;
-	QueryListItem_3230.data_size	= DATA_SIZE_3230;
-	QueryListItem_3230.p_next_item	= (void*)&QueryListItem_3232;
+        // этот запрос слать вроде как не надо
+//	QueryListItem_3230.cmd_id	= CMD_ID_3230; 
+//	QueryListItem_3230.p_data	= (void*)&Query_3230;
+//	QueryListItem_3230.data_size	= DATA_SIZE_3230;
+//	QueryListItem_3230.p_next_item	= (void*)&QueryListItem_3232;
 
-	QueryListItem_3232.cmd_id		= CMD_ID_3232;
-	QueryListItem_3232.p_data		= (void*)&Query_3232;
+        // этот запрос слать вроде как не надо
+//	QueryListItem_3234.cmd_id	= CMD_ID_3234;
+//	QueryListItem_3234.p_data	= (void*)&Query_3234;
+//	QueryListItem_3234.data_size	= DATA_SIZE_3234;
+//	QueryListItem_3234.p_next_item	= (void*)&QueryListItem_3332;
+        
+	QueryListItem_3232.cmd_id	= CMD_ID_3232;
+	QueryListItem_3232.p_data	= (void*)&Query_3232;
 	QueryListItem_3232.data_size	= DATA_SIZE_3232;
-	QueryListItem_3232.p_next_item	= (void*)&QueryListItem_3234;
+	QueryListItem_3232.p_next_item	= (void*)&QueryListItem_3332;
 
-	QueryListItem_3234.cmd_id		= CMD_ID_3234;
-	QueryListItem_3234.p_data		= (void*)&Query_3234;
-	QueryListItem_3234.data_size	= DATA_SIZE_3234;
-	QueryListItem_3234.p_next_item	= (void*)&QueryListItem_3332;
-
-	QueryListItem_3332.cmd_id		= CMD_ID_3332;
-	QueryListItem_3332.p_data		= (void*)&Query_3332;
+	QueryListItem_3332.cmd_id	= CMD_ID_3332;
+	QueryListItem_3332.p_data	= (void*)&Query_3332;
 	QueryListItem_3332.data_size	= DATA_SIZE_3332;
 	QueryListItem_3332.p_next_item	= (void*)&QueryListItem_3532;
 
-	QueryListItem_3532.cmd_id		= CMD_ID_3532;
-	QueryListItem_3532.p_data		= (void*)&Query_3532;
+	QueryListItem_3532.cmd_id	= CMD_ID_3532;
+	QueryListItem_3532.p_data	= (void*)&Query_3532;
 	QueryListItem_3532.data_size	= DATA_SIZE_3532;
-	QueryListItem_3532.p_next_item	= (void*)&QueryListItem_3230; // здесь ссылаемся на первый элемент, так как это циклический список
+	QueryListItem_3532.p_next_item	= (void*)&QueryListItem_3232; // здесь ссылаемся на первый элемент, так как это циклический список
 
-	QueryesList = &QueryListItem_3230;
+	QueryesList = &QueryListItem_3232;
 }
 // ----------------------------------------------------------------------------

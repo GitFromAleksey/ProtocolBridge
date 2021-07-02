@@ -182,10 +182,10 @@ def main():
         
         if len(rx_bytes):
             LogToFile('rx_bytes: ' + ':'.join('{:02x}'.format(b) for b in rx_bytes))
-            tx_bytes = RawDataParser(rx_bytes)
-            if tx_bytes:
-                LogToFile('tx_bytes: ' + ':'.join('{:02x}'.format(b) for b in tx_bytes))
-                ser.write(tx_bytes)
+##            tx_bytes = RawDataParser(rx_bytes)
+##            if tx_bytes:
+##                LogToFile('tx_bytes: ' + ':'.join('{:02x}'.format(b) for b in tx_bytes))
+##                ser.write(tx_bytes)
 
     pass
 

@@ -65,7 +65,11 @@ typedef struct
 	uint16_t FilterCCM;
 	int32_t ErrorBitField;
 
-	t_3231_uint8_service_bit_field u8_service_bit_fld;
+        union
+        {
+          uint8_t u8_service_bits;
+          t_3231_uint8_service_bit_field u8_service_bit_fld;
+        } u_service_bit_fld;
 } t_3231_accept_parameters_response;
 #pragma pack(pop)
 
@@ -207,10 +211,10 @@ typedef struct
 // ---------------------------------------------------------------------
 typedef struct
 {
-	void *p_void; // пустые данные для того, чтобы компилятор не ругался
+        t_3230_set_parameters_query _3230;
 } t_3234_set_parameters_nonvolatile_mem_query; // Set parameters to be saved in non-volatile memory
 
-#define DATA_SIZE_3234	0 //(uint16_t)(sizeof(t_3234_set_parameters_nonvolatile_mem_query))
+#define DATA_SIZE_3234	(uint16_t)(sizeof(t_3234_set_parameters_nonvolatile_mem_query))
 // ---------------------------------------------------------------------
 typedef struct // 23 32 33 DD
 {
